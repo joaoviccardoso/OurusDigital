@@ -1,0 +1,35 @@
+:root {
+  /* Paleta oficial */
+  --blue: #005ce6;
+  --paper: #f8f9ff;
+  --navy: #0d1c32;
+  --black: #010101;
+
+  /* Gradiente azul (botões e destaques) */
+  --sky-1: #4da3ff;
+  --sky-2: #2e8bff;
+  --sky-3: #38bdf8;
+  --grad: linear-gradient(90deg, var(--sky-1) 0%, var(--sky-2) 50%, var(--sky-3) 100%);
+
+  /* Derivadas */
+  --bg: var(--black);
+  --bg-elevated: var(--navy);
+  --text: var(--paper);
+  --text-muted: rgba(248, 249, 255, 0.72);
+  --line: rgba(77, 163, 255, 0.28);
+  --blue-glow: rgba(0, 92, 230, 0.5);
+  --whatsapp: #25d366;
+
+  --font: 'Plus Jakarta Sans Variable', system-ui, sans-serif;
+
+  --fs-hero: clamp(2.2rem, 9.6vw, 3.4rem);
+  --fs-body: clamp(0.95rem, 3.9vw, 1.1rem);
+
+  --space-page: clamp(20px, 6vw, 32px);
+  --radius-pill: 999px;
+
+  --z-stage: 20;
+  --z-header: 40;
+  --z-float: 50;
+  --z-preloader: 100;
+}

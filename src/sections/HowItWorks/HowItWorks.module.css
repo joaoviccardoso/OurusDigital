@@ -1,0 +1,95 @@
+/* Fundo branco (paper), balões sólidos navy com ponta */
+.section {
+  position: relative;
+  background: var(--paper);
+}
+
+/* z-index > palco da placa: o texto e os balões ficam por cima dela */
+.pin {
+  position: relative;
+  z-index: 30;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  padding: calc(env(safe-area-inset-top, 0px) + 84px) var(--space-page) 16px;
+  overflow: hidden;
+}
+
+.stage {
+  --plate-h: calc(var(--plate-w) * 1.08);
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  margin-top: 24px;
+}
+
+/* linha vertical central: dois trechos, acima e abaixo da placa (a placa fica "na frente") */
+.stage::before,
+.stage::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 1.5px;
+  height: calc(50% - var(--plate-h) / 2);
+  background: rgba(13, 28, 50, 0.55);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.stage::before { top: 0; }
+.stage::after { bottom: 0; }
+
+/* mesma largura/proporção da placa */
+.anchor {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--plate-w);
+  aspect-ratio: 1 / 1.08;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.hand { position: absolute; left: 0; right: 0; bottom: -4px; width: min(62vw, 250px); margin: 0 auto; opacity: 0; }
+
+/* balão informativo */
+.balloon {
+  position: absolute;
+  z-index: 2;
+  width: clamp(160px, 42%, 180px);
+  padding: 14px 14px 16px;
+  text-align: left;
+  border-radius: 14px;
+  background: var(--navy);
+  color: var(--paper);
+  opacity: 0;
+}
+.balloon h3 { margin-top: 8px; font-size: 1.05rem; font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; }
+.balloon p { margin-top: 6px; font-size: 0.68rem; line-height: 1.35; color: rgba(248, 249, 255, 0.82); }
+
+/* ponta do balão (triângulo no canto inferior) */
+.balloon::after {
+  content: '';
+  position: absolute;
+  bottom: -11px;
+  width: 20px;
+  height: 14px;
+  background: var(--navy);
+}
+.b1::after,
+.b3::after { right: 16px; clip-path: polygon(0 0, 100% 0, 100% 100%); } /* ponta p/ baixo-direita */
+.b2::after { left: 16px; clip-path: polygon(0 0, 100% 0, 0 100%); }     /* ponta p/ baixo-esquerda */
+
+.num {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  border-radius: 50%;
+  background: var(--blue);
+}
+
+.b1 { top: 5%; left: 0; }
+.b2 { top: 36%; right: 0; }
+.b3 { bottom: 7%; left: 0; }

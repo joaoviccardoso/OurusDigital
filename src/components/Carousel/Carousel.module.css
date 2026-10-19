@@ -1,0 +1,40 @@
+.root {
+  position: relative;
+  border-radius: 24px;
+  border: 1.5px solid var(--blue);
+  background: rgba(13, 28, 50, 0.55);
+  box-shadow: 0 0 40px rgba(0, 92, 230, 0.2);
+}
+
+.track {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  border-radius: 24px;
+  overscroll-behavior-x: contain;
+}
+.track::-webkit-scrollbar { display: none; }
+
+.slide { flex: 0 0 100%; scroll-snap-align: center; padding: 28px 48px 52px; }
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-top: -18px;
+  border-radius: 50%;
+  background: var(--grad);
+  box-shadow: 0 6px 18px var(--blue-glow);
+}
+.arrow:disabled { opacity: 0.35; cursor: default; }
+.prev { left: 8px; }
+.next { right: 8px; }
+
+.dots { position: absolute; left: 0; right: 0; bottom: 18px; display: flex; justify-content: center; gap: 8px; }
+.dot, .dotOn { width: 8px; height: 8px; padding: 0; border-radius: 50%; background: rgba(248, 249, 255, 0.3); transition: width 0.3s, background 0.3s; }
+.dotOn { width: 22px; border-radius: 8px; background: var(--sky-1); }

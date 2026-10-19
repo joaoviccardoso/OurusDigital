@@ -1,0 +1,19 @@
+.stage {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-stage);
+  pointer-events: none;
+  perspective: 1100px;
+  overflow: hidden;
+}
+
+.mover {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(66vw, 260px);
+  will-change: transform;
+}
+
+.layer { transform-style: preserve-3d; }
+.scaler { opacity: 0; visibility: hidden; }
