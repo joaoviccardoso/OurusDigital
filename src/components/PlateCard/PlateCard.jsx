@@ -59,7 +59,7 @@ export default function PlateCard({ variant = 'blue', cardRef, className = '' })
         src={PLATE_MODELS[variant]}
         alt="Placa NFC e QR Code para avaliações no Google"
         camera-orbit={`${PLATE_YAW_OFFSET}deg 90deg auto`}
-        field-of-view="30deg"
+        field-of-view="28deg"
         environment-image="neutral"
         exposure="1.05"
         shadow-intensity="0"
