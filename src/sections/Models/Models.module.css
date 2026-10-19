@@ -1,21 +1,76 @@
 .section {
   position: relative;
+  overflow: hidden; /* evita scroll horizontal por causa das luzes */
   padding: 88px var(--space-page) 72px;
   background:
     radial-gradient(70% 30% at 50% 0%, rgba(0, 92, 230, 0.3), transparent 70%),
-    var(--black);
+    #000915;
 }
 
-.list { display: grid; gap: 64px; margin-top: 44px; }
+.list { display: grid; gap: 72px; margin-top: 44px; }
 
-.item { display: grid; justify-items: center; gap: 28px; }
+.item {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  justify-items: center;
+  gap: 28px;
+  width: 100%;
+  max-width: 300px;      /* texto alinha com a borda esquerda da placa */
+  margin-inline: auto;
+}
 
-.plate { width: min(66vw, 260px); perspective: 1100px; transform-style: preserve-3d; }
+.plate {
+  position: relative;
+  width: min(66vw, 260px);
+  perspective: 1100px;
+  transform-style: preserve-3d;
 
-.copy { display: grid; gap: 8px; justify-items: center; text-align: center; }
-.copy p { max-width: 26ch; color: var(--text-muted); font-size: 0.95rem; }
+  /* distância do centro da placa até a ponta (ajuste aqui) */
+  --tip-x: 125px;
+  --tip-y: 135px;
+  --light-size: 220px;
+  --light-color: rgba(0, 92, 230, 0.75);
+}
 
-.name { display: flex; align-items: center; gap: 10px; font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; }
-.dot { width: 18px; height: 18px; border-radius: 50%; flex: none; }
+.item[data-variant='black'] .plate {
+  --light-color: rgba(0, 92, 230, 0.75);
+}
+
+.light {
+  position: absolute;
+  z-index: -1;
+  width: var(--light-size);
+  height: var(--light-size);
+  margin: calc(var(--light-size) / -2) 0 0 calc(var(--light-size) / -2); /* centraliza no ponto */
+  border-radius: 50%;
+  background: radial-gradient(closest-side, var(--light-color), transparent 75%);
+  filter: blur(18px);
+  pointer-events: none;
+}
+
+/* ponta superior esquerda */
+.lightA {
+  left: calc(65% - var(--tip-x));
+  top: calc(65% - var(--tip-y));
+}
+
+/* ponta inferior direita */
+.lightB {
+  left: calc(35% + var(--tip-x));
+  top: calc(35% + var(--tip-y));
+}
+
+.copy {
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  width: 80%;
+  text-align: left;
+}
+.copy p { max-width: 28ch; color: var(--text-muted); font-size: 0.95rem; line-height: 1.5; }
+
+.name { display: flex; align-items: center; gap: 12px; font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; }
+.dot { width: 20px; height: 20px; border-radius: 50%; flex: none; }
 .blue { background: var(--grad); box-shadow: 0 0 14px var(--blue-glow); }
 .black { background: var(--black); border: 2px solid var(--navy); box-shadow: 0 0 0 1px var(--line); }
