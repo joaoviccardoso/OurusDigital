@@ -25,7 +25,7 @@ export default function Solutions() {
   return (
     <section className={styles.section} data-section="solutions" ref={root}>
       <SectionHeader icon={<SparkIcon />} badge="Serviços" title="Soluções para o seu crescimento">
-        Mais que um site, entregamos soluções digitais que conectam sua marca às pessoas certas e geram resultados reais.
+        
       </SectionHeader>
 
       <div className={styles.grid}>

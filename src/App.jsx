@@ -42,7 +42,6 @@ function Site() {
         <Hero ready={ready} />
         <HowItWorks />
         <Models />
-        <Solutions />
         <Reasons />
       </main>
       <Footer />
