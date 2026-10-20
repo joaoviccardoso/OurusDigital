@@ -1,6 +1,7 @@
 .section {
   position: relative;
   padding: 88px var(--space-page) 64px;
+   overflow-x: clip;
   background:
     radial-gradient(70% 22% at 50% 4%, #000915, transparent 70%),
     #000915;
