@@ -1,4 +1,3 @@
-
 .wrap {
   position: relative;
   width: 100%;
@@ -8,8 +7,12 @@
   align-items: center;
   justify-content: center;
 
+  --plate-glow: rgba(0, 92, 230, 0.55);
 }
 
+.wrap[data-variant='black'] {
+  --plate-glow: rgba(77, 163, 255, 0.3);
+}
 
 .glow {
   position: absolute;
@@ -37,6 +40,23 @@
   --poster-color: transparent;
 
   pointer-events: none;
+}
+
+/* Modo interativo: o usuário arrasta para girar a placa */
+.interactive .model {
+  pointer-events: auto;
+  cursor: grab;
+}
+.interactive .model:active {
+  cursor: grabbing;
+}
+.interactive .model:focus {
+  outline: none;
+}
+.interactive .model:focus-visible {
+  outline: 2px solid var(--sky-1);
+  outline-offset: -4px;
+  border-radius: 16px;
 }
 
 /* Responsividade */

@@ -2,6 +2,7 @@ import { useRef } from 'react';
 import { useGSAP, gsap, prefersReducedMotion } from '../../lib/gsap';
 import { usePlate } from '../../providers/PlateProvider';
 import PlateCard from '../../components/PlateCard/PlateCard';
+import InfoCarousel from './InfoCarousel';
 import styles from './Reasons.module.css';
 
 const OPTIONS = [
@@ -9,26 +10,32 @@ const OPTIONS = [
   { value: 'black', label: 'Modelo Preta' },
 ];
 
-/** Slide interativo: alterna a cor da placa 3D (estado global em PlateProvider). */
-export default function ColorSlide() {
+/** Bloco único: placa 3D (arrastável) + seletor de cor + carrossel de cards. */
+export default function ColorShowcase({ cards }) {
   const { variant, setVariant } = usePlate();
   const card = useRef(null);
   const first = useRef(true);
 
-  // gira a placa a cada troca de cor
+  // a cada troca de cor, dá uma volta e volta para o ângulo em que o usuário deixou a placa
   useGSAP(
     () => {
       if (first.current) { first.current = false; return; }
-      if (prefersReducedMotion()) return;
-      gsap.fromTo(card.current, { rotationY: -140 }, { rotationY: 0, duration: 1, ease: 'back.out(1.3)' });
+      const h = card.current;
+      if (!h || prefersReducedMotion()) return;
+      h.sync?.();
+      const from = h.rotationY;
+      gsap.fromTo(h, { rotationY: from - 140 }, { rotationY: from, duration: 1, ease: 'back.out(1.3)' });
     },
     { dependencies: [variant] }
   );
 
   return (
-    <div className={styles.colorSlide}>
-      <div className={styles.colorPlate}>
-        <PlateCard variant={variant} cardRef={card} scene />
+    <div className={styles.showcase}>
+      <div className={styles.stage}>
+        <div className={styles.colorPlate}>
+          <PlateCard interactive variant={variant} cardRef={card} className={styles.plateWrap} />
+        </div>
+        <p className={styles.hint}>↔ Arraste para girar a placa</p>
       </div>
 
       <div className={styles.picker} role="radiogroup" aria-label="Cor da placa">
@@ -47,6 +54,8 @@ export default function ColorSlide() {
           </button>
         ))}
       </div>
+
+      <InfoCarousel cards={cards} />
     </div>
   );
 }

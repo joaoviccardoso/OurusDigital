@@ -53,7 +53,7 @@ export const BENEFITS = [
     title: 'Gestão *do Google Business*',
     text: 'Mantenha o perfil da sua empresa atualizado e facilite a descoberta do seu negócio por quem procura seus serviços.',
     tag: 'Presença local',
-    image: '/images/benefits/google-business.png',
+    image: '/images/GestaoDeGoogle.png',
     imageAlt: 'Painel do Google Business',
   },
   {
@@ -61,7 +61,40 @@ export const BENEFITS = [
     title: 'Placas *NFC & QR Code Premium*',
     text: 'Conecte o atendimento presencial ao digital com placas elegantes que facilitam o acesso dos clientes às suas avaliações e canais online.',
     tag: 'Produto em destaque',
-    image: '/images/benefits/placas.png',
+    image: '/images/PlacasNFC.png',
     imageAlt: 'Placas NFC e QR Code azul e preta',
   },
+];
+
+// Cada array interno = um slide do carrossel (3 cards empilhados).
+// `icon` é opcional (caminho de imagem), igual ao BENEFITS.
+export const INFO_SLIDES = [
+  [
+    {
+      title: 'Destaque onde seus clientes procuram.',
+      text: 'Estratégias de SEO local e otimização do Perfil da Empresa no Google ajudam seu negócio a ganhar visibilidade quando as pessoas procuram pelos serviços que você oferece',
+    },
+    {
+      title: 'Seu site trabalhando pela sua empresa.',
+      text: 'Tenha uma página rápida, responsiva e alinhada à sua marca, preparada para apresentar seus diferenciais, conquistar a confiança dos visitantes e incentivar contatos.',
+    },
+    {
+      title: 'Sua reputação merece ser vista.',
+      text: 'Facilite o acesso às avaliações e crie uma experiência simples para seus clientes compartilharem suas opiniões espontaneamente, fortalecendo sua reputação online.',
+    },
+  ],
+  [
+    {
+      title: 'Mais confiança',
+      text: 'Uma presença profissional transmite credibilidade antes mesmo do primeiro contato. Fortaleça a imagem da sua empresa e facilite a decisão de novos clientes.',
+    },
+    {
+      title: 'Soluções conectadas ao seu crescimento.',
+      text: 'Site, presença no Google, reputação e tecnologia trabalhando em conjunto para criar uma experiência consistente e profissional em cada ponto de contato com seus clientes.',
+    },
+    {
+      title: 'Tecnologia premium. Experiência diferenciada.',
+      text: 'Muito além de uma placa comum: acrílico com acabamento sofisticado, NFC e QR Code em uma solução que aproxima o ambiente físico dos seus canais digitais.',
+    },
+  ],
 ];

@@ -1,12 +1,17 @@
 .section {
   position: relative;
   padding: 88px var(--space-page) 64px;
-   overflow-x: clip;
+  overflow-x: clip;
   background:
     radial-gradient(70% 22% at 50% 4%, #000915, transparent 70%),
     #000915;
 }
 
+.hl { color: var(--blue, #005ce6); }
+
+/* =====================================================
+   Cards de benefícios (zigue-zague)
+   ===================================================== */
 .benefits {
   display: grid;
   gap: 22px;
@@ -14,19 +19,22 @@
   max-width: 520px;
 }
 
+.item { position: relative; }
+
 .benefit {
   --card-bg: #06132a;
-  --split: 54.5%; /* onde fica a linha de divisão */
+  --split: 64.3%; /* posição da linha de divisão (1.8fr / 2.8fr) */
 
   position: relative;
+  z-index: 1;
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: 1.8fr 1fr;
   grid-template-areas: 'copy media';
   min-height: 170px;
   overflow: hidden;
 
-  /* borda de 3px com gradiente azul claro → branco */
-  border: 3px solid transparent;
+  /* borda com gradiente azul claro → branco */
+  border: 6px solid transparent;
   border-radius: 24px;
   background:
     linear-gradient(var(--card-bg), var(--card-bg)) padding-box,
@@ -34,8 +42,8 @@
   box-shadow: 0 0 28px rgba(0, 92, 230, 0.25);
 }
 
-.reverse {
-  --split: 45.5%;
+.reverse .benefit {
+  --split: 45.5%; /* 1fr / 2.2fr */
   grid-template-columns: 1fr 1.2fr;
   grid-template-areas: 'media copy';
 }
@@ -76,6 +84,7 @@
   border: 1.5px solid var(--sky-2);
   background: rgba(0, 92, 230, 0.2);
 }
+.icon img { width: 18px; height: 18px; object-fit: contain; display: block; }
 
 .benefit h3 {
   font-size: 1.1rem;
@@ -111,39 +120,173 @@
   object-position: center;
 }
 
-@media (min-width: 640px) {
-  .benefits { grid-template-columns: 1fr 1fr; }
+/* ponto de luz no canto superior esquerdo do card (direito nos invertidos) */
+.light {
+  --size: 260px;
+
+  position: absolute;
+  z-index: 0;
+  top: calc(var(--size) / -2);
+  left: calc(var(--size) / -2);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: radial-gradient(
+    closest-side,
+    rgba(0, 92, 230, 0.75),
+    rgba(0, 92, 230, 0.25) 55%,
+    transparent 75%
+  );
+  filter: blur(14px);
+  pointer-events: none;
+}
+.reverse .light {
+  left: auto;
+  right: calc(var(--size) / -2);
 }
 
-.carousel { margin-top: 48px; }
+/* =====================================================
+   Bloco único: placa 3D + cores + carrossel
+   ===================================================== */
+.showcase {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr); /* sem isso o grid cresce até a largura de todos os cards do carrossel */
+  gap: 22px;
+  margin-top: 24px;
+}
+.showcase > * { min-width: 0; }
 
-/* slide interativo */
-.colorSlide { display: grid; justify-items: center; gap: 26px; }
-.colorPlate { width: min(52vw, 210px); }
+/* luzes laterais na altura da placa */
+.showcase::before,
+.showcase::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: -24px;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(0, 92, 230, 0.7), rgba(0, 92, 230, 0.2) 55%, transparent 75%);
+  filter: blur(16px);
+  pointer-events: none;
+}
+.showcase::before { left: -130px; }
+.showcase::after  { right: -130px; }
 
-.picker { width: 100%; display: grid; gap: 10px; }
-.pickerTitle { text-align: left; font-size: 1.1rem; font-weight: 800; }
+.stage { position: relative; z-index: 1; display: grid; justify-items: center; }
+.colorPlate { width: min(48vw, 200px); }
+/* o wrapper do PlateCard tem altura fixa (520px/380px); aqui reduzo para não abrir um vão enorme */
+.colorPlate .plateWrap { height: 280px; }
+.hint { margin-top: -10px; font-size: 0.75rem; color: var(--text-muted); opacity: 0.85; }
+
+/* seletor de cores */
+.picker {
+  position: relative;
+  z-index: 2; /* o modelo 3D é maior que o wrapper; o seletor fica por cima para não perder cliques */
+  width: 100%;
+  display: grid;
+  gap: 6px;
+  padding: 16px 20px 12px;
+  border: 2px solid var(--sky-2);
+  border-radius: 22px;
+  background: rgba(6, 19, 42, 0.6);
+  box-shadow: 0 0 22px rgba(0, 92, 230, 0.25);
+}
+.pickerTitle { text-align: left; font-size: 1.05rem; font-weight: 800; color: var(--sky-1); }
 
 .option {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 14px;
-  font-weight: 600;
+  gap: 16px;
+  padding: 8px 6px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
   text-align: left;
-  border-radius: 14px;
-  border: 1.5px solid transparent;
-  background: rgba(1, 1, 1, 0.35);
-  transition: border-color 0.25s, background 0.25s;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  transition: background 0.25s;
 }
-.optionOn { border-color: var(--sky-2); background: rgba(0, 92, 230, 0.2); }
+.optionOn { background: rgba(0, 92, 230, 0.16); }
 
-.swatch { width: 20px; height: 20px; border-radius: 6px; flex: none; }
+.swatch { width: 26px; height: 26px; border-radius: 50%; flex: none; }
 .sw_blue { background: var(--grad); }
-.sw_black { background: var(--black); border: 1.5px solid var(--line); }
+.sw_black { background: #0b1830; border: 1.5px solid var(--line); }
+.optionOn .sw_blue { box-shadow: 0 0 14px var(--blue-glow); }
 
-/* slides informativos */
-.infoSlide { display: grid; justify-items: center; align-content: center; gap: 12px; min-height: 280px; text-align: center; }
-.infoSlide svg { color: var(--sky-1); }
-.infoSlide h3 { font-size: 1.2rem; font-weight: 800; line-height: 1.15; max-width: 16ch; }
-.infoSlide p { max-width: 24ch; font-size: 0.9rem; color: var(--text-muted); }
+/* =====================================================
+   Carrossel de cards informativos
+   ===================================================== */
+.carousel { position: relative; z-index: 2; }
+
+.viewport { position: relative; min-width: 0; }
+
+.track {
+  display: flex;
+  gap: 14px;
+  padding: 4px 2px 6px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  outline: none;
+}
+.track::-webkit-scrollbar { display: none; }
+
+.slide {
+  flex: 0 0 100%;
+  display: grid;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+.infoCard {
+  padding: 14px 18px 16px;
+  text-align: left;
+  border: 2px solid var(--sky-2);
+  border-radius: 22px;
+  background: rgba(6, 19, 42, 0.55);
+}
+.infoIcon { display: block; width: 28px; height: 28px; margin-bottom: 8px; object-fit: contain; }
+.infoCard h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--sky-1);
+}
+.infoCard p { margin-top: 6px; font-size: 0.78rem; line-height: 1.4; color: rgba(255, 255, 255, 0.9); }
+
+.arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  color: #fff;
+  background: var(--grad);
+  box-shadow: 0 0 14px var(--blue-glow);
+  transition: opacity 0.25s;
+}
+.arrow:disabled { opacity: 0.3; }
+.prev { left: -14px; }
+.next { right: -14px; }
+
+.dots { display: flex; justify-content: center; gap: 8px; margin-top: 14px; }
+.dot {
+  width: 8px;
+  height: 8px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  transition: width 0.3s, background 0.3s;
+}
+.dotOn { width: 22px; background: var(--sky-1); }
