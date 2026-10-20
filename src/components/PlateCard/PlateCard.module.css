@@ -7,7 +7,6 @@
   align-items: center;
   justify-content: center;
 
-  --plate-glow: rgba(0, 92, 230, 0.55);
 }
 
 .wrap[data-variant='black'] {

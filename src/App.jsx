@@ -13,7 +13,6 @@ import Footer from './components/Footer/Footer';
 import Hero from './sections/Hero/Hero';
 import HowItWorks from './sections/HowItWorks/HowItWorks';
 import Models from './sections/Models/Models';
-import Solutions from './sections/Solutions/Solutions';
 import Reasons from './sections/Reasons/Reasons';
 
 function Site() {
