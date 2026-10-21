@@ -4,14 +4,14 @@ import { usePlate } from '../providers/PlateProvider';
 /**
  * Coreografia da placa fixa:
  *  1) entrada na Hero + flutuação
- *  2) descida (scrub) da âncora da Hero até a âncora da Seção 2
- *  3) a Seção 2 faz o pin (ver HowItWorks): a placa fica parada
- *  4) saída: quando a Seção 3 sobe, a placa sai junto com a Seção 2
+ *  2) descida (scrub) da âncora da Hero até a âncora da HowItWorks
+ *  3) a HowItWorks faz o pin (ver HowItWorks): a placa fica parada
+ *  4) saída: quando a seção seguinte sobe, a placa sai junto com a HowItWorks
  *
  * Contrato do DOM:
  *   [data-section="hero"]   com [data-plate-anchor]
  *   [data-section="how"]    com [data-plate-anchor]
- *   [data-section="models"]
+ *   (a seção seguinte à "how" é usada como gatilho da saída)
  */
 export function usePlateJourney(ready) {
   const { refs } = usePlate();
@@ -22,12 +22,15 @@ export function usePlateJourney(ready) {
       const { mover, exiter, scaler, float, card } = refs.current;
       const hero = document.querySelector('[data-section="hero"]');
       const how = document.querySelector('[data-section="how"]');
-      const models = document.querySelector('[data-section="models"]');
-      if (!mover || !hero || !how || !models) return;
+      if (!mover || !hero || !how) return;
 
       const heroAnchor = hero.querySelector('[data-plate-anchor]');
       const howAnchor = how.querySelector('[data-plate-anchor]');
       const reduced = prefersReducedMotion();
+
+      // seção que vem depois da HowItWorks (se ela estiver com pin, está dentro de um .pin-spacer)
+      const howWrapper = how.parentElement?.classList.contains('pin-spacer') ? how.parentElement : how;
+      const next = howWrapper.nextElementSibling;
 
       // centro da âncora relativo ao topo da sua seção
       const centerIn = (anchor, section) => {
@@ -59,22 +62,24 @@ export function usePlateJourney(ready) {
         journey.fromTo(card, { rotationY: 0 }, { rotationY: 360, ease: 'power1.inOut' }, 0);
       }
 
-      // 4) saída: acompanha a Seção 2 subindo (topo da Seção 3: fundo → topo do viewport)
-      gsap.fromTo(
-        exiter,
-        { y: 0 },
-        {
-          y: () => -window.innerHeight,
-          ease: 'none',
-          scrollTrigger: {
-            trigger: models,
-            start: 'top bottom',
-            end: 'top top',
-            scrub: true,
-            invalidateOnRefresh: true,
-          },
-        }
-      );
+      // 4) saída: acompanha a HowItWorks subindo (topo da próxima seção: fundo → topo do viewport)
+      if (next) {
+        gsap.fromTo(
+          exiter,
+          { y: 0 },
+          {
+            y: () => -window.innerHeight,
+            ease: 'none',
+            scrollTrigger: {
+              trigger: next,
+              start: 'top bottom',
+              end: 'top top',
+              scrub: true,
+              invalidateOnRefresh: true,
+            },
+          }
+        );
+      }
 
       // 1) entrada
       gsap.fromTo(

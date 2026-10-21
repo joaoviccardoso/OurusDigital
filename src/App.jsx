@@ -40,7 +40,7 @@ function Site() {
       <main>
         <Hero ready={ready} />
         <HowItWorks />
-        <Models />
+        {/* <Models /> */}
         <Reasons />
       </main>
       <Footer />
