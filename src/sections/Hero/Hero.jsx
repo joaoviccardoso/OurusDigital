@@ -55,14 +55,16 @@ export default function Hero({ ready }) {
           <span className={styles.line}><span className={styles.lineInner}>em avaliações</span></span>
         </h1>
 
-        <p className={styles.lead}>
-          Facilite o pedido de avaliação do seu cliente com tecnologia NFC e QR Code.
-        </p>
+        <div className={styles.side}>
+          <p className={styles.lead}>
+            Facilite o pedido de avaliação do seu cliente com tecnologia NFC e QR Code.
+          </p>
 
-        <a className={styles.cta} href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
-          <WhatsAppIcon size={26} />
-          Quero minha Placa Agora
-        </a>
+          <a className={styles.cta} href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+            <WhatsAppIcon size={26} />
+            Quero minha Placa Agora
+          </a>
+        </div>
       </div>
 
       {/* A placa 3D (fixa) pousa aqui no início; a âncora só reserva o espaço */}
