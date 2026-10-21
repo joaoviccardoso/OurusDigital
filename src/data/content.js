@@ -49,7 +49,7 @@ export const BENEFITS = [
     imageAlt: 'Site institucional em notebook e celular',
   },
   {
-    icon: '/images/iconeGestao.png',
+    icon: '/images/iconeGrafico.png',
     title: 'Gestão *do Google Business*',
     text: 'Mantenha o perfil da sua empresa atualizado e facilite a descoberta do seu negócio por quem procura seus serviços.',
     tag: 'Presença local',
