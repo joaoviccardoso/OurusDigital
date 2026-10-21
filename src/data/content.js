@@ -33,7 +33,7 @@ export const BENEFITS = [
     imageAlt: 'Perfil da empresa no Google com nota 4,9',
   },
   {
-    icon: '/images/IconEstrela.png',
+    icon: '/images/iconeGrafico.png',
     title: 'Mais *avaliações* no Google',
     text: 'Estratégias de presença digital para ajudar sua empresa a ganhar destaque nas buscas e ser encontrada por novos clientes.',
     tag: 'Visibilidade',
@@ -41,7 +41,7 @@ export const BENEFITS = [
     imageAlt: 'Busca no Google com a empresa em destaque',
   },
   {
-    icon: '/images/IconEstrela.png',
+    icon: '/images/iconeCodigo.png',
     title: 'Sites que *valorizam sua marca*',
     text: 'Sites modernos, responsivos e pensados para apresentar seus serviços, transmitir confiança e gerar oportunidades.',
     tag: 'Desenvolvimento web',
@@ -49,7 +49,7 @@ export const BENEFITS = [
     imageAlt: 'Site institucional em notebook e celular',
   },
   {
-    icon: '/images/IconEstrela.png',
+    icon: '/images/iconeGestao.png',
     title: 'Gestão *do Google Business*',
     text: 'Mantenha o perfil da sua empresa atualizado e facilite a descoberta do seu negócio por quem procura seus serviços.',
     tag: 'Presença local',
@@ -57,7 +57,7 @@ export const BENEFITS = [
     imageAlt: 'Painel do Google Business',
   },
   {
-    icon: '/images/IconEstrela.png',
+    icon: '/images/iconePlaca.png',
     title: 'Placas *NFC & QR Code Premium*',
     text: 'Conecte o atendimento presencial ao digital com placas elegantes que facilitam o acesso dos clientes às suas avaliações e canais online.',
     tag: 'Produto em destaque',

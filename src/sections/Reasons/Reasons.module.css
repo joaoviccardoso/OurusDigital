@@ -44,12 +44,12 @@
 
 .benefit {
   --card-bg: #06132a;
-  --split: 64.3%; /* posição da linha de divisão (1.8fr / 2.8fr) */
+  --split: 50%; /* posição da linha de divisão (1.8fr / 2.8fr) */
 
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 1.8fr 1fr;
+  grid-template-columns: 1.2fr 1fr;
   grid-template-areas: 'copy media';
   min-height: 170px;
   overflow: hidden;
@@ -108,7 +108,7 @@
 .icon img { width: 18px; height: 18px; object-fit: contain; display: block; }
 
 .benefit h3 {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 800;
   line-height: 1.15;
   letter-spacing: -0.02em;
@@ -116,7 +116,7 @@
 }
 .benefit h3 em { font-style: normal; color: var(--sky-1); }
 
-.benefit p { font-size: 0.78rem; line-height: 1.45; color: var(--text-muted); }
+.benefit p { font-size: 0.7rem; line-height: 1.45; color: var(--text-muted);  }
 
 .tag { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); opacity: 0.85; }
 
