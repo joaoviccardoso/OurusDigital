@@ -93,3 +93,63 @@
 .b1 { top: 2%; left: 0; }
 .b2 { top: 36%; right: 0; }
 .b3 { bottom: 4%; left: 0; }
+
+/* ========== DESKTOP: balões maiores e colados na placa ========== */
+@media (min-width: 1100px) {
+  /* mesma largura da placa fixa da Hero (clamp igual ao do .mover) */
+  .section {
+    --plate-w: clamp(340px, 30vw, 480px);
+    --balloon-gap: clamp(20px, 2.5vw, 40px); /* distância entre balão e placa */
+  }
+
+  .balloon {
+    width: clamp(270px, 23vw, 350px);
+    padding: 24px 26px 28px;
+    border-radius: 20px;
+  }
+
+  .balloon h3 {
+    margin-top: 14px;
+    font-size: clamp(1.4rem, 1.7vw, 1.8rem);
+  }
+
+  .balloon p {
+    margin-top: 10px;
+    font-size: clamp(0.95rem, 1.05vw, 1.1rem);
+    line-height: 1.5;
+  }
+
+  .num {
+    width: 38px;
+    height: 38px;
+    font-size: 1.1rem;
+  }
+
+  /* ponta maior */
+  .balloon::after {
+    width: 30px;
+    height: 20px;
+    bottom: -17px;
+  }
+  .b1::after,
+  .b3::after { right: 26px; }
+  .b2::after { left: 26px; }
+
+  /* 1 e 3 à esquerda da placa, 2 à direita */
+  .b1 {
+    top: 10%;
+    left: auto;
+    right: calc(50% + var(--plate-w) / 2 + var(--balloon-gap));
+  }
+  .b2 {
+    top: 38%;
+    right: auto;
+    left: calc(50% + var(--plate-w) / 2 + var(--balloon-gap));
+  }
+  .b3 {
+    top: auto;
+    bottom: 10%;
+    left: auto;
+    right: calc(50% + var(--plate-w) / 2 + var(--balloon-gap));
+  }
+}

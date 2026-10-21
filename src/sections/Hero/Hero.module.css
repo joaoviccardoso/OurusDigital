@@ -90,7 +90,7 @@
 @media (min-width: 1100px) {
   .hero {
     display: grid;
-    grid-template-columns: minmax(0, 1.5fr) minmax(280px, 340px) minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1.35fr) clamp(340px, 30vw, 480px) minmax(0, 1fr);
     grid-template-areas: "title anchor text";
     align-items: center;
     align-content: center;
@@ -133,7 +133,7 @@
     grid-area: anchor;
     flex: none;
     align-self: center;
-    min-height: min(480px, 60svh);
+    min-height: min(600px, 68svh);
     margin-top: 0;
   }
 }

@@ -58,6 +58,23 @@
   border-radius: 16px;
 }
 
+@media (min-width: 1100px) {
+  .mover {
+    width: clamp(340px, 30vw, 480px);
+  }
+}
+
+@media (min-width: 1100px) {
+  .wrap {
+    height: clamp(640px, 62vh, 820px);
+  }
+
+  .model {
+    width: 135%;
+    height: 135%;
+  }
+}
+
 /* Responsividade */
 @media (max-width: 768px) {
   .wrap {
