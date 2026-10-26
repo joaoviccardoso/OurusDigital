@@ -44,7 +44,7 @@ export default function HowItWorks() {
   );
 
   return (
-    <section className={styles.section} data-section="how" ref={root}>
+    <section id="como-funciona" className={styles.section} data-section="how" ref={root}>
       <div className={styles.pin} ref={pin}>
         <SectionHeader icon={<SparkIcon />} badge="Como utilizar as placas" title="Como Funciona" tone="light" style={{ '--title-max': '8ch' }}>
           É muito simples! Em apenas 3 passos seus clientes já deixam uma avaliação no Google.

@@ -8,6 +8,44 @@
   padding: calc(env(safe-area-inset-top, 0px) + 12px) var(--space-page) 12px;
 }
 
+/* ---------- Desktop nav ---------- */
+.nav {
+  display: none;
+  align-items: center;
+  gap: clamp(24px, 3vw, 44px);
+}
+
+.link {
+  position: relative;
+  padding: 8px 2px;
+  color: var(--paper);
+  font-size: 0.95rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  opacity: 0.75;
+  transition: opacity 0.25s ease;
+}
+.link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 2px;
+  height: 2px;
+  background: currentColor;
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+}
+.link:hover,
+.link.active { opacity: 1; }
+.link:hover::after,
+.link.active::after { transform: scaleX(1); }
+.link:focus-visible { outline: 2px solid var(--paper); outline-offset: 4px; border-radius: 4px; }
+
+/* ---------- Mobile hambúrguer ---------- */
 .menu {
   display: grid;
   gap: 6px;
@@ -15,4 +53,46 @@
   height: 44px;
   place-content: center;
 }
-.menu span { display: block; width: 30px; height: 2px; background: var(--paper); border-radius: 2px; }
+.menu span {
+  display: block;
+  width: 30px;
+  height: 2px;
+  background: var(--paper);
+  border-radius: 2px;
+  transition: transform 0.3s ease, opacity 0.2s ease;
+}
+.menuOpen span:nth-child(1) { transform: translateY(8px) rotate(45deg); }
+.menuOpen span:nth-child(2) { opacity: 0; }
+.menuOpen span:nth-child(3) { transform: translateY(-8px) rotate(-45deg); }
+
+.panel {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: grid;
+  gap: 4px;
+  padding: 12px var(--space-page) 24px;
+  background: rgba(10, 10, 10, 0.92);
+  backdrop-filter: blur(12px);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity 0.25s ease, transform 0.25s ease, visibility 0.25s;
+}
+.panelOpen { opacity: 1; visibility: visible; transform: none; }
+.panel a {
+  padding: 14px 0;
+  color: var(--paper);
+  font-size: 1.1rem;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* ---------- Desktop ---------- */
+@media (min-width: 1024px) {
+  .header { padding-top: calc(env(safe-area-inset-top, 0px) + 20px); padding-bottom: 20px; }
+  .nav { display: flex; }
+  .menu,
+  .panel { display: none; }
+}

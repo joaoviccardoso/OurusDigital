@@ -43,7 +43,7 @@ export default function Hero({ ready }) {
   );
 
   return (
-    <section id="top" className={styles.hero} data-section="hero" ref={root}>
+    <section id="inicio" className={styles.hero} data-section="hero" ref={root}>
       <div className={styles.copy}>
         <p className={styles.badge}>
           <BoltIcon />

@@ -28,7 +28,7 @@ export default function Reasons() {
   );
 
   return (
-    <section className={styles.section} data-section="reasons" ref={root}>
+    <section id="motivos" className={styles.section} data-section="reasons" ref={root}>
       <SectionHeader icon={<BoltIcon />} badge={`Por que ${BRAND}?`} title="Soluções para o seu crescimento">
         Mais que um site, entregamos soluções digitais que conectam sua marca às pessoas certas e geram resultados reais.
       </SectionHeader>
