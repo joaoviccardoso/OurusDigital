@@ -44,6 +44,21 @@ export default function Hero({ ready }) {
 
   return (
     <section id="inicio" className={styles.hero} data-section="hero" ref={root}>
+      {/* Camadas decorativas do fundo (visíveis apenas no desktop) */}
+      <div className={styles.bgLayer} aria-hidden="true">
+        <img
+          className={styles.bgWaves}
+          src="/images/heroOverlay.png"
+          alt=""
+          onError={(e) => {
+            // se a imagem ainda não existir, esconde sem quebrar o layout
+            e.currentTarget.style.display = 'none';
+          }}
+        />
+        <span className={styles.bgGlow} />
+        <span className={styles.bgGrid} />
+      </div>
+
       <div className={styles.copy}>
         <p className={styles.badge}>
           <BoltIcon />

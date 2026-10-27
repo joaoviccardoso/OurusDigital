@@ -27,7 +27,10 @@
     radial-gradient(80% 40% at 0% 55%, rgba(13, 28, 50, 0.9), transparent 10%);
 }
 
-.copy { position: relative; display: grid; gap: 20px; justify-items: center;}
+/* camadas decorativas: escondidas no mobile */
+.bgLayer { display: none; }
+
+.copy { position: relative; display: grid; gap: 20px; justify-items: center; }
 
 .badge {
   display: inline-flex;
@@ -101,13 +104,69 @@
       max(var(--space-page), calc((100% - 1300px) / 2))
       64px;
     background-position: center;
+    /* degradê mais leve: o preto fica só nas bordas, sem apagar as camadas novas */
+    background-image:
+      linear-gradient(180deg, rgba(1, 1, 1, 0.55) 0%, rgba(1, 1, 1, 0.25) 45%, rgba(1, 1, 1, 0.85) 100%),
+      url('/images/fundoHero.png');
   }
 
   .hero::before {
+    z-index: 0;
     background:
       radial-gradient(50% 60% at 60% 50%, rgba(0, 92, 230, 0.35), transparent 70%),
       radial-gradient(40% 40% at 0% 100%, rgba(13, 28, 50, 0.9), transparent 70%);
   }
+
+  /* ----- camadas decorativas ----- */
+  .bgLayer {
+    display: block;
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  /* segunda imagem: ondas/textura na metade inferior, fundindo com o preto */
+  .bgWaves {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: 70%;
+    object-fit: cover;
+    object-position: center bottom;
+    opacity: 0.55;
+    mix-blend-mode: screen; /* clareia só onde há luz, sem criar "caixa" */
+    -webkit-mask-image: linear-gradient(to top, #000 30%, transparent 100%);
+            mask-image: linear-gradient(to top, #000 30%, transparent 100%);
+  }
+
+  /* halo azul atrás da placa */
+  .bgGlow {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 640px;
+    height: 640px;
+    transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(0, 92, 230, 0.45) 0%, transparent 65%);
+    filter: blur(40px);
+  }
+
+  /* grade sutil que some nas bordas (efeito tech) */
+  .bgGrid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 64px 64px;
+    -webkit-mask-image: radial-gradient(60% 60% at 50% 50%, #000, transparent 100%);
+            mask-image: radial-gradient(60% 60% at 50% 50%, #000, transparent 100%);
+  }
+
+  /* ----- conteúdo ----- */
 
   /* título, lead e cta viram itens do grid; o badge sai do fluxo */
   .copy { display: contents; }
@@ -115,6 +174,7 @@
   .title {
     grid-area: title;
     position: relative;
+    z-index: 1;
     font-size: clamp(2.8rem, 4.2vw, 4.6rem);
     line-height: 1.02;
   }
@@ -124,6 +184,7 @@
     position: absolute;
     top: calc(env(safe-area-inset-top, 0px) + 110px);
     left: max(var(--space-page), calc((100% - 1300px) / 2));
+    z-index: 2;
     margin: 0;
     font-size: 0.72rem;
     padding: 10px 18px;
@@ -131,9 +192,31 @@
 
   .anchor {
     grid-area: anchor;
+    position: relative;
+    z-index: 1;
     flex: none;
     align-self: center;
     min-height: min(600px, 68svh);
     margin-top: 0;
   }
+
+  /* painel de vidro em volta do texto + botão (lado direito) */
+  .side {
+    grid-area: text;
+    position: relative;
+    z-index: 1;
+    display: grid;
+    gap: 18px;
+    justify-items: start;
+    padding: 28px 28px 30px;
+    border-radius: 28px;
+    background: rgba(13, 28, 50, 0.45);
+    border: 1px solid var(--line);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  }
+
+  .lead { max-width: 30ch; }
+  .cta { margin-top: 0; width: 100%; }
 }
