@@ -38,6 +38,125 @@
 .stage::before { top: 0; }
 .stage::after { bottom: 0; }
 
+/* ========== CAMADA DECORATIVA: cobre a seção inteira, centrada na placa ========== */
+.decor {
+  --pw: var(--plate-w, 260px);
+  position: absolute;
+  inset: -100vh -100vw; /* gigante: o .pin (overflow:hidden) recorta e preenche a tela toda */
+  z-index: -1;          /* atrás de header, balões e placa, mas acima do fundo da seção */
+  pointer-events: none;
+}
+
+/* grade de pontos: vazia atrás da placa, forte ao redor, esmaece até as bordas */
+.dots,
+.dotsBig {
+  position: absolute;
+  inset: 0;
+  -webkit-mask-image: radial-gradient(
+    circle at 50% 50%,
+    transparent 0,
+    transparent calc(var(--pw) * 0.55),
+    #000 calc(var(--pw) * 1),
+    rgba(0, 0, 0, 0.55) calc(var(--pw) * 2.2),
+    rgba(0, 0, 0, 0.22) 70vw,
+    transparent 120vw
+  );
+          mask-image: radial-gradient(
+    circle at 50% 50%,
+    transparent 0,
+    transparent calc(var(--pw) * 0.55),
+    #000 calc(var(--pw) * 1),
+    rgba(0, 0, 0, 0.55) calc(var(--pw) * 2.2),
+    rgba(0, 0, 0, 0.22) 70vw,
+    transparent 120vw
+  );
+}
+
+.dots {
+  background-image: radial-gradient(rgba(0, 92, 230, 0.42) 1.3px, transparent 1.7px);
+  background-size: 22px 22px;
+  background-position: 0px 0px;
+}
+
+/* camada maior que "pisca" devagar, dá profundidade */
+.dotsBig {
+  background-image: radial-gradient(rgba(0, 92, 230, 0.9) 2px, transparent 2.6px);
+  background-size: 66px 66px;
+  background-position: 11px 11px;
+  animation: twinkle 4.5s ease-in-out infinite;
+}
+
+/* halo azul suave (centro vazado para não tingir a placa) */
+.glow {
+  --d: calc(var(--pw) * 2.2);
+  position: absolute;
+  width: var(--d);
+  height: var(--d);
+  left: calc(50% - var(--d) / 2);
+  top: calc(50% - var(--d) / 2);
+  border-radius: 50%;
+  background: radial-gradient(circle closest-side, rgba(0, 92, 230, 0.34) 45%, rgba(0, 92, 230, 0) 100%);
+  filter: blur(28px);
+  -webkit-mask-image: radial-gradient(circle closest-side, transparent 0, transparent 40%, #000 70%);
+          mask-image: radial-gradient(circle closest-side, transparent 0, transparent 40%, #000 70%);
+}
+
+/* ondas de radar saindo da placa */
+.pulse {
+  --d: calc(var(--pw) * 1.3);
+  position: absolute;
+  width: var(--d);
+  height: var(--d);
+  left: calc(50% - var(--d) / 2);
+  top: calc(50% - var(--d) / 2);
+  border-radius: 50%;
+  border: 1.5px solid rgba(0, 92, 230, 0.5);
+  opacity: 0;
+  animation: ripple 5s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+.pulse2 { animation-delay: 2.5s; }
+
+/* anéis concêntricos com bolinhas orbitando */
+.ring {
+  position: absolute;
+  border-radius: 50%;
+  left: calc(50% - var(--d) / 2);
+  top: calc(50% - var(--d) / 2);
+  width: var(--d);
+  height: var(--d);
+  animation: spin var(--spin, 60s) linear infinite; /* usa a propriedade `rotate`, não conflita com o transform do GSAP */
+}
+.ring::before,
+.ring::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  margin-left: -4px;
+  border-radius: 50%;
+  background: #005ce6;
+  box-shadow: 0 0 12px 3px rgba(0, 92, 230, 0.55);
+}
+.ring::before { top: -4px; }
+.ring::after  { bottom: -4px; opacity: 0.55; transform: scale(0.7); }
+
+.ringA { --d: calc(var(--pw) * 1.75); --spin: 40s;  border: 1.5px dashed rgba(0, 92, 230, 0.4); }
+.ringB { --d: calc(var(--pw) * 2.5);  --spin: 70s;  animation-direction: reverse; border: 1px solid rgba(13, 28, 50, 0.12); }
+.ringC { --d: calc(var(--pw) * 3.4);  --spin: 100s; border: 1px dashed rgba(0, 92, 230, 0.22); }
+.ringD { --d: calc(var(--pw) * 4.6);  --spin: 140s; animation-direction: reverse; border: 1px solid rgba(13, 28, 50, 0.07); }
+
+@keyframes spin    { to { rotate: 360deg; } }
+@keyframes twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.8; } }
+@keyframes ripple {
+  0%   { transform: scale(0.8); opacity: 0.7; }
+  100% { transform: scale(3.4); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ring, .dotsBig, .pulse { animation: none; }
+}
+
 /* mesma largura/proporção da placa */
 .anchor {
   position: absolute;
@@ -109,6 +228,11 @@
     column-gap: var(--balloon-gap);
   }
 
+  /* linha central em degradê: nasce do nada e "encosta" na placa */
+  .stage::before { background: linear-gradient(180deg, rgba(0, 92, 230, 0), rgba(0, 92, 230, 0.6)); }
+  .stage::after  { background: linear-gradient(0deg,   rgba(0, 92, 230, 0), rgba(0, 92, 230, 0.6)); }
+
+  /* ----- balões ----- */
   .balloon {
     position: relative; /* sai do absolute; a .anchor continua absolute */
     top: auto;
@@ -119,7 +243,30 @@
     max-width: 100%;
     padding: 24px 26px 28px;
     border-radius: 20px;
+    /* brilho azul no canto superior esquerdo sobre o navy sólido */
+    background:
+      radial-gradient(120% 90% at 0% 0%, rgba(0, 92, 230, 0.3), transparent 60%),
+      var(--navy);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.07),
+      0 28px 50px -18px rgba(13, 28, 50, 0.45);
   }
+
+  /* número grande de marca d'água */
+  .balloon::before {
+    content: attr(data-n);
+    position: absolute;
+    right: 22px;
+    bottom: 2px;
+    z-index: 0;
+    font-size: clamp(5rem, 6vw, 6.5rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.06em;
+    color: rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+  }
+  .balloon > * { position: relative; z-index: 1; }
 
   .balloon h3 {
     margin-top: 14px;
@@ -136,6 +283,8 @@
     width: 38px;
     height: 38px;
     font-size: 1.1rem;
+    background: linear-gradient(135deg, var(--sky-1, #4aa8ff), var(--blue));
+    box-shadow: 0 0 0 5px rgba(0, 92, 230, 0.25);
   }
 
   /* ponta maior */
@@ -144,8 +293,7 @@
     height: 20px;
     bottom: -17px;
   }
-  .b1::after,
-  .b3::after { right: 26px; }
+  .b1::after { right: 26px; }
   .b2::after { left: 26px; }
 
   /* 1 e 3 na coluna esquerda (uma em cada linha), 2 na direita */
@@ -160,13 +308,22 @@
     grid-row: 2;
     justify-self: end;
     align-self: end;
-    margin-bottom: 20px; /* espaço para a ponta */
+    margin-bottom: 6px; /* só folga para a sombra; a ponta agora é em cima */
   }
   .b2 {
     grid-column: 3;
     grid-row: 1 / span 2;
     justify-self: start;
     align-self: center;
+  }
+
+  /* balão 3: ponta no canto SUPERIOR direito, apontando para cima/direita (rumo à placa) */
+  .b3::after {
+    bottom: auto;
+    top: -17px;
+    right: 26px;
+    left: auto;
+    clip-path: polygon(0 100%, 100% 100%, 100% 0);
   }
 }
 
@@ -185,6 +342,11 @@
     border-radius: 16px;
   }
 
+  .balloon::before {
+    font-size: 4.2rem;
+    right: 16px;
+  }
+
   .balloon h3 {
     margin-top: 8px;
     font-size: clamp(1.15rem, 1.4vw, 1.4rem);
@@ -200,6 +362,7 @@
     width: 30px;
     height: 30px;
     font-size: 0.95rem;
+    box-shadow: 0 0 0 4px rgba(0, 92, 230, 0.25);
   }
 
   .balloon::after {
@@ -207,5 +370,6 @@
     height: 16px;
     bottom: -13px;
   }
-  .b3 { margin-bottom: 14px; }
+  .b3 { margin-bottom: 4px; }
+  .b3::after { bottom: auto; top: -13px; }
 }
