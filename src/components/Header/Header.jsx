@@ -8,6 +8,7 @@ const LINKS = [
   { id: 'como-funciona', label: 'Como funciona' },
   // { id: 'modelos', label: 'Modelos' },
   { id: 'motivos', label: 'Por que escolher' },
+  { id: 'modelos', label: 'Modelos' },
 ];
 
 export default function Header() {

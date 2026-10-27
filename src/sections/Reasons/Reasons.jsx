@@ -70,6 +70,7 @@ export default function Reasons() {
         badge={`Por que ${BRAND}?`}
         title={<>Seu negócio merece <span className={styles.hl}>mais que presença digital.</span></>}
         style={{ margin: '4rem 0 0' }}
+        id={'modelos'}
       >
         Soluções pensadas para fortalecer sua marca, conquistar a confiança dos clientes e transformar sua presença digital em novas oportunidades.
       </SectionHeader>
