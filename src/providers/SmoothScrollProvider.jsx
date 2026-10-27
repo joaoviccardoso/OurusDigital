@@ -16,7 +16,7 @@ export function SmoothScrollProvider({ children }) {
     if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
     window.scrollTo(0, 0);
 
-    const instance = new Lenis({ lerp: 0.1, smoothWheel: true, autoRaf: false });
+    const instance = new Lenis({ lerp: 0.06, smoothWheel: true, autoRaf: false });
     instance.stop();
 
     const onTick = (time) => instance.raf(time * 1000);

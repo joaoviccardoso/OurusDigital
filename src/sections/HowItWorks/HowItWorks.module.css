@@ -6,13 +6,26 @@
 
 /* z-index > palco da placa: o texto e os balões ficam por cima dela */
 .pin {
+  /* altura extra que a barra de URL do navegador ocupa (0 no desktop) */
+  --bar: 0px;
   position: relative;
   z-index: 30;
-  height: 100svh;
+  height: 100svh; /* fallback */
   display: flex;
   flex-direction: column;
   padding: calc(env(safe-area-inset-top, 0px) + 84px) var(--space-page) 16px;
   overflow: hidden;
+}
+
+/* Mobile: com a barra de URL escondida a viewport cresce (lvh) e o .pin (svh) deixava uma faixa
+   em branco embaixo. Agora o .pin ocupa a maior altura (lvh), e o padding inferior reserva o
+   espaço da barra, então o conteúdo continua no mesmo lugar e o fundo preenche tudo. */
+@supports (height: 100lvh) {
+  .pin {
+    --bar: calc(100lvh - 100svh);
+    height: 100lvh;
+    padding-bottom: calc(16px + var(--bar));
+  }
 }
 
 .stage {
