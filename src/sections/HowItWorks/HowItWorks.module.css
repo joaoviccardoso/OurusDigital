@@ -1,428 +1,1645 @@
-/* Fundo branco (paper), balões sólidos navy com ponta */
+
+/* =========================================================
+   HOW IT WORKS
+   Versão otimizada para mobile / celulares de entrada
+
+   Estratégia:
+   - Desktop: experiência visual completa
+   - Tablet: experiência intermediária
+   - Mobile: versão leve
+   - Celular fraco: versão ainda mais simplificada
+
+   Animações priorizam:
+   - transform
+   - opacity
+
+   Evitamos animações contínuas desnecessárias em mobile.
+========================================================= */
+
+
+/* =========================================================
+   SEÇÃO
+========================================================= */
+
 .section {
   position: relative;
   background: var(--paper);
 }
 
-/* z-index > palco da placa: o texto e os balões ficam por cima dela */
+
+/* =========================================================
+   PIN
+========================================================= */
+
 .pin {
-  /* altura extra que a barra de URL do navegador ocupa (0 no desktop) */
   --bar: 0px;
-  --pad-bottom: 16px; /* ajuste aqui o espaço inferior da seção */
+  --pad-bottom: 16px;
+
   position: relative;
   z-index: 30;
-  height: 110svh; /* fallback */
+
+  height: 110svh;
+
   display: flex;
   flex-direction: column;
-  padding: calc(env(safe-area-inset-top, 0px) + 84px) var(--space-page) var(--pad-bottom);
+
+  padding:
+    calc(env(safe-area-inset-top, 0px) + 84px)
+    var(--space-page)
+    var(--pad-bottom);
+
   overflow: hidden;
 }
 
-/* Mobile: com a barra de URL escondida a viewport cresce (lvh) e o .pin (svh) deixava uma faixa
-   em branco embaixo. Agora o .pin ocupa a maior altura (lvh), e o padding inferior reserva o
-   espaço da barra, então o conteúdo continua no mesmo lugar e o fundo preenche tudo. */
+
+/* Mobile com URL do navegador escondida */
 @supports (height: 100lvh) {
   .pin {
     --bar: calc(100lvh - 100svh);
+
     height: 100lvh;
-    padding-bottom: calc(var(--pad-bottom) + var(--bar));
+
+    padding-bottom:
+      calc(var(--pad-bottom) + var(--bar));
   }
 }
 
+
+/* =========================================================
+   STAGE
+========================================================= */
+
 .stage {
   --plate-h: calc(var(--plate-w) * 1.08);
+
   position: relative;
+
   flex: 1;
   min-height: 0;
+
   margin-top: 24px;
 }
 
-/* linha vertical central: dois trechos, acima e abaixo da placa (a placa fica "na frente") */
+
+/* =========================================================
+   LINHA CENTRAL
+========================================================= */
+
 .stage::before,
 .stage::after {
   content: '';
+
   position: absolute;
+
   left: 50%;
+
   width: 1.5px;
-  height: calc(50% - var(--plate-h) / 2);
-  background: rgba(13, 28, 50, 0.55);
+
+  height:
+    calc(50% - var(--plate-h) / 2);
+
+  background:
+    rgba(13, 28, 50, 0.55);
+
   transform: translateX(-50%);
+
   pointer-events: none;
 }
-.stage::before { top: 0; }
-.stage::after { bottom: 0; }
 
-/* ========== CAMADA DECORATIVA: centrada na placa, cobre a tela do pin ========== */
-/* ANTES: inset -100vh -100vw (300vw × 300vh de camada). AGORA: só o necessário
-   (largura do palco + ~50vh acima e abaixo), o que reduz muito a memória de GPU no celular.
-   `contain: paint` isola a camada: o que acontece aqui dentro não força repintura fora. */
+.stage::before {
+  top: 0;
+}
+
+.stage::after {
+  bottom: 0;
+}
+
+
+/* =========================================================
+   DECORAÇÃO
+========================================================= */
+
 .decor {
   --pw: var(--plate-w, 260px);
+
   position: absolute;
-  inset: -50vh calc(var(--space-page, 24px) * -1);
-  z-index: -1;          /* atrás de header, balões e placa, mas acima do fundo da seção */
+
+  /*
+   * Área menor que a versão original.
+   * Evita criar uma camada gigantesca no celular.
+   */
+  inset:
+    -50vh
+    calc(var(--space-page, 24px) * -1);
+
+  z-index: -1;
+
   pointer-events: none;
+
   contain: paint;
+
+  /*
+   * Evita que a decoração gere overflow visual.
+   */
+  overflow: hidden;
 }
 
-/* Máscara única para as duas grades de pontos: vazia atrás da placa, forte ao redor,
-   esmaece até as bordas. A máscara fica PARADA aqui; só as grades de dentro se movem. */
+
+/* =========================================================
+   MÁSCARA DOS DOTS
+========================================================= */
+
 .dotsMask {
   position: absolute;
+
   inset: 0;
-  -webkit-mask-image: radial-gradient(
-    circle at 50% 50%,
-    transparent 0,
-    transparent calc(var(--pw) * 0.55),
-    #000 calc(var(--pw) * 1),
-    rgba(0, 0, 0, 0.55) calc(var(--pw) * 2.2),
-    rgba(0, 0, 0, 0.22) 70vw,
-    transparent 120vw
-  );
-          mask-image: radial-gradient(
-    circle at 50% 50%,
-    transparent 0,
-    transparent calc(var(--pw) * 0.55),
-    #000 calc(var(--pw) * 1),
-    rgba(0, 0, 0, 0.55) calc(var(--pw) * 2.2),
-    rgba(0, 0, 0, 0.22) 70vw,
-    transparent 120vw
-  );
+
+  /*
+   * Máscara estática.
+   * Apenas os elementos internos podem se mover.
+   */
+  -webkit-mask-image:
+    radial-gradient(
+      circle at 50% 50%,
+
+      transparent 0,
+
+      transparent
+        calc(var(--pw) * 0.55),
+
+      #000
+        calc(var(--pw) * 1),
+
+      rgba(0, 0, 0, 0.55)
+        calc(var(--pw) * 2.2),
+
+      rgba(0, 0, 0, 0.22)
+        70vw,
+
+      transparent
+        120vw
+    );
+
+  mask-image:
+    radial-gradient(
+      circle at 50% 50%,
+
+      transparent 0,
+
+      transparent
+        calc(var(--pw) * 0.55),
+
+      #000
+        calc(var(--pw) * 1),
+
+      rgba(0, 0, 0, 0.55)
+        calc(var(--pw) * 2.2),
+
+      rgba(0, 0, 0, 0.22)
+        70vw,
+
+      transparent
+        120vw
+    );
 }
 
-/* As grades são maiores que a máscara por 1 deslocamento inteiro (88px / 132px, múltiplos do tile),
-   assim o GSAP desliza via transform sem deixar borda vazia e sem repintar. */
+
+/* =========================================================
+   DOTS
+========================================================= */
+
 .dots,
 .dotsBig {
   position: absolute;
+
+  pointer-events: none;
 }
 
+
+/* Dots principais */
 .dots {
   inset: -88px;
-  background-image: radial-gradient(rgba(0, 92, 230, 0.42) 1.3px, transparent 1.7px);
+
+  background-image:
+    radial-gradient(
+      rgba(0, 92, 230, 0.42)
+        1.3px,
+      transparent
+        1.7px
+    );
+
   background-size: 22px 22px;
+
+  /*
+   * O GSAP pode animar transform.
+   */
+  will-change: transform, opacity;
 }
 
-/* camada maior que "pisca" devagar, dá profundidade (opacity = animação de GPU) */
+
+/* Dots secundários */
 .dotsBig {
   inset: -132px;
-  background-image: radial-gradient(rgba(0, 92, 230, 0.9) 2px, transparent 2.6px);
+
+  background-image:
+    radial-gradient(
+      rgba(0, 92, 230, 0.9)
+        2px,
+      transparent
+        2.6px
+    );
+
   background-size: 66px 66px;
-  background-position: 11px 11px;
-  animation: twinkle 4.5s ease-in-out infinite;
+
+  background-position:
+    11px 11px;
+
+  animation:
+    twinkle
+    4.5s
+    ease-in-out
+    infinite;
+
+  will-change: opacity;
 }
 
-/* halo azul suave com centro vazado.
-   ANTES: gradiente + filter: blur(28px) + mask. AGORA: um gradiente só, com o mesmo perfil
-   de transparência (sem blur e sem máscara, que são as partes caras). */
+
+/* =========================================================
+   GLOW
+========================================================= */
+
 .glow {
   --d: calc(var(--pw) * 2.2);
+
   position: absolute;
+
   width: var(--d);
   height: var(--d);
-  left: calc(50% - var(--d) / 2);
-  top: calc(50% - var(--d) / 2);
+
+  left:
+    calc(50% - var(--d) / 2);
+
+  top:
+    calc(50% - var(--d) / 2);
+
   border-radius: 50%;
-  background: radial-gradient(
-    circle closest-side,
-    rgba(0, 92, 230, 0) 0,
-    rgba(0, 92, 230, 0) 40%,
-    rgba(0, 92, 230, 0.1) 50%,
-    rgba(0, 92, 230, 0.16) 58%,
-    rgba(0, 92, 230, 0.185) 68%,
-    rgba(0, 92, 230, 0.1) 85%,
-    rgba(0, 92, 230, 0) 100%
-  );
+
+  background:
+    radial-gradient(
+      circle closest-side,
+
+      rgba(0, 92, 230, 0)
+        0%,
+
+      rgba(0, 92, 230, 0)
+        40%,
+
+      rgba(0, 92, 230, 0.1)
+        50%,
+
+      rgba(0, 92, 230, 0.16)
+        58%,
+
+      rgba(0, 92, 230, 0.185)
+        68%,
+
+      rgba(0, 92, 230, 0.1)
+        85%,
+
+      rgba(0, 92, 230, 0)
+        100%
+    );
+
+  pointer-events: none;
 }
 
-/* ondas de radar saindo da placa */
+
+/* =========================================================
+   PULSES
+========================================================= */
+
 .pulse {
   --d: calc(var(--pw) * 1.3);
+
   position: absolute;
+
   width: var(--d);
   height: var(--d);
-  left: calc(50% - var(--d) / 2);
-  top: calc(50% - var(--d) / 2);
-  border-radius: 50%;
-  border: 1.5px solid rgba(0, 92, 230, 0.5);
-  opacity: 0;
-  animation: ripple 5s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
-}
-.pulse1 { animation-delay: 0s; }
-.pulse2 { animation-delay: 2.5s; }
 
-/* anéis concêntricos com bolinhas orbitando */
+  left:
+    calc(50% - var(--d) / 2);
+
+  top:
+    calc(50% - var(--d) / 2);
+
+  border:
+    1.5px solid
+    rgba(0, 92, 230, 0.5);
+
+  border-radius: 50%;
+
+  opacity: 0;
+
+  animation:
+    ripple
+    5s
+    cubic-bezier(0.2, 0.6, 0.3, 1)
+    infinite;
+
+  will-change:
+    transform,
+    opacity;
+}
+
+.pulse1 {
+  animation-delay: 0s;
+}
+
+.pulse2 {
+  animation-delay: 2.5s;
+}
+
+
+/* =========================================================
+   RINGS
+========================================================= */
+
 .ring {
   position: absolute;
+
   border-radius: 50%;
-  left: calc(50% - var(--d) / 2);
-  top: calc(50% - var(--d) / 2);
+
+  left:
+    calc(50% - var(--d) / 2);
+
+  top:
+    calc(50% - var(--d) / 2);
+
   width: var(--d);
   height: var(--d);
-  animation: spin var(--spin, 60s) linear infinite; /* usa a propriedade `rotate`, não conflita com o transform do GSAP */
+
+  animation:
+    spin
+    var(--spin, 60s)
+    linear
+    infinite;
+
+  pointer-events: none;
+
+  /*
+   * A animação usa rotate.
+   */
+  will-change: rotate;
 }
+
+
+/* Pontos dos rings */
+
 .ring::before,
 .ring::after {
   content: '';
+
   position: absolute;
+
   left: 50%;
+
   width: 8px;
   height: 8px;
+
   margin-left: -4px;
+
   border-radius: 50%;
+
   background: #005ce6;
-  box-shadow: 0 0 12px 3px rgba(0, 92, 230, 0.55);
+
+  /*
+   * Glow menor que o original.
+   */
+  box-shadow:
+    0 0 8px 2px
+    rgba(0, 92, 230, 0.45);
 }
-.ring::before { top: -4px; }
-.ring::after  { bottom: -4px; opacity: 0.55; transform: scale(0.7); }
 
-.ringA { --d: calc(var(--pw) * 1.75); --spin: 40s;  border: 1.5px dashed rgba(0, 92, 230, 0.4); }
-.ringB { --d: calc(var(--pw) * 2.5);  --spin: 70s;  animation-direction: reverse; border: 1px solid rgba(13, 28, 50, 0.12); }
-.ringC { --d: calc(var(--pw) * 3.4);  --spin: 100s; border: 1px dashed rgba(0, 92, 230, 0.22); }
-.ringD { --d: calc(var(--pw) * 4.6);  --spin: 140s; animation-direction: reverse; border: 1px solid rgba(13, 28, 50, 0.07); }
+.ring::before {
+  top: -4px;
+}
 
-@keyframes spin    { to { rotate: 360deg; } }
-@keyframes twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.8; } }
+.ring::after {
+  bottom: -4px;
+
+  opacity: 0.55;
+
+  transform: scale(0.7);
+}
+
+
+/* Ring A */
+
+.ringA {
+  --d: calc(var(--pw) * 1.75);
+  --spin: 40s;
+
+  border:
+    1.5px dashed
+    rgba(0, 92, 230, 0.4);
+}
+
+
+/* Ring B */
+
+.ringB {
+  --d: calc(var(--pw) * 2.5);
+  --spin: 70s;
+
+  animation-direction: reverse;
+
+  border:
+    1px solid
+    rgba(13, 28, 50, 0.12);
+}
+
+
+/* Ring C */
+
+.ringC {
+  --d: calc(var(--pw) * 3.4);
+  --spin: 100s;
+
+  border:
+    1px dashed
+    rgba(0, 92, 230, 0.22);
+}
+
+
+/* Ring D */
+
+.ringD {
+  --d: calc(var(--pw) * 4.6);
+  --spin: 140s;
+
+  animation-direction: reverse;
+
+  border:
+    1px solid
+    rgba(13, 28, 50, 0.07);
+}
+
+
+/* =========================================================
+   KEYFRAMES
+========================================================= */
+
+@keyframes spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.15;
+  }
+
+  50% {
+    opacity: 0.8;
+  }
+}
+
+
 @keyframes ripple {
-  0%   { transform: scale(0.8); opacity: 0.7; }
-  100% { transform: scale(3.4); opacity: 0; }
+  0% {
+    transform: scale(0.8);
+    opacity: 0.7;
+  }
+
+  100% {
+    transform: scale(3.4);
+    opacity: 0;
+  }
 }
 
-/* Fora da tela, as animações infinitas ficam pausadas (o JS marca data-active) */
-.section:not([data-active='true']) .decor * {
+
+/* =========================================================
+   PAUSA QUANDO A SEÇÃO NÃO ESTÁ VISÍVEL
+========================================================= */
+
+.section:not([data-active='true'])
+  .decor
+  * {
   animation-play-state: paused;
 }
 
+
+/* =========================================================
+   REDUCED MOTION
+========================================================= */
+
 @media (prefers-reduced-motion: reduce) {
-  .ring, .dotsBig, .pulse { animation: none; }
+  .ring,
+  .dotsBig,
+  .pulse {
+    animation: none;
+  }
+
+  .dots,
+  .dotsBig,
+  .ring,
+  .pulse {
+    will-change: auto;
+  }
 }
 
-/* ========== MODO LITE: só celulares fracos (o JS marca data-perf="lite") ========== */
+
+/* =========================================================
+   MODO LITE
+========================================================= */
+
 @media (max-width: 1099px) {
-  .section[data-perf='lite'] .ringD,
-  .section[data-perf='lite'] .pulse2 { display: none; }
+  /*
+   * Remove elementos menos importantes.
+   */
 
-  .section[data-perf='lite'] .ringC { animation: none; }
+  .section[data-perf='lite']
+    .ringD,
 
-  .section[data-perf='lite'] .dotsBig {
+  .section[data-perf='lite']
+    .ringC,
+
+  .section[data-perf='lite']
+    .pulse2,
+
+  .section[data-perf='lite']
+    .dotsBig {
+    display: none;
+  }
+
+
+  .section[data-perf='lite']
+    .ringC {
     animation: none;
+  }
+
+
+  .section[data-perf='lite']
+    .dotsBig {
     opacity: 0.45;
   }
 }
 
-/* mesma largura/proporção da placa */
+
+/* =========================================================
+   ANCHOR DA PLACA
+========================================================= */
+
 .anchor {
   position: absolute;
+
   left: 50%;
   top: 50%;
+
   width: var(--plate-w);
+
   aspect-ratio: 1 / 1.08;
-  transform: translate(-50%, -50%);
+
+  transform:
+    translate(-50%, -50%);
+
   pointer-events: none;
 }
 
-.hand { position: absolute; left: 0; right: 0; bottom: -4px; width: min(62vw, 250px); margin: 0 auto; opacity: 0; }
 
-/* balão informativo */
-.balloon {
+/* =========================================================
+   MÃO
+========================================================= */
+
+.hand {
   position: absolute;
-  z-index: 2;
-  width: clamp(120px, 42%, 180px);
-  padding: 14px 14px 16px;
-  text-align: left;
-  border-radius: 14px;
-  background: var(--navy);
-  color: var(--paper);
+
+  left: 0;
+  right: 0;
+
+  bottom: -4px;
+
+  width:
+    min(62vw, 250px);
+
+  margin: 0 auto;
+
   opacity: 0;
 }
-.balloon h3 { margin-top: 8px; font-size: 1.05rem; font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; }
-.balloon p { margin-top: 6px; font-size: 0.68rem; line-height: 1.35; color: rgba(248, 249, 255, 0.82); }
 
-/* ponta do balão (triângulo no canto inferior) */
+
+/* =========================================================
+   BALÕES
+========================================================= */
+
+.balloon {
+  position: absolute;
+
+  z-index: 2;
+
+  width:
+    clamp(
+      120px,
+      42%,
+      180px
+    );
+
+  padding:
+    14px
+    14px
+    16px;
+
+  text-align: left;
+
+  border-radius: 14px;
+
+  background:
+    var(--navy);
+
+  color:
+    var(--paper);
+
+  opacity: 0;
+
+  /*
+   * Apenas opacity e transform serão animados.
+   */
+  will-change:
+    transform,
+    opacity;
+}
+
+
+/* Título */
+
+.balloon h3 {
+  margin-top: 8px;
+
+  font-size: 1.05rem;
+
+  font-weight: 800;
+
+  line-height: 1.05;
+
+  letter-spacing: -0.02em;
+}
+
+
+/* Texto */
+
+.balloon p {
+  margin-top: 6px;
+
+  font-size: 0.68rem;
+
+  line-height: 1.35;
+
+  color:
+    rgba(
+      248,
+      249,
+      255,
+      0.82
+    );
+}
+
+
+/* =========================================================
+   PONTA DO BALÃO
+========================================================= */
+
 .balloon::after {
   content: '';
+
   position: absolute;
+
   bottom: -11px;
+
   width: 20px;
   height: 14px;
-  background: var(--navy);
+
+  background:
+    var(--navy);
 }
+
+
 .b1::after,
-.b3::after { right: 16px; clip-path: polygon(0 0, 100% 0, 100% 100%); } /* ponta p/ baixo-direita */
-.b2::after { left: 16px; clip-path: polygon(0 0, 100% 0, 0 100%); }     /* ponta p/ baixo-esquerda */
+.b3::after {
+  right: 16px;
+
+  clip-path:
+    polygon(
+      0 0,
+      100% 0,
+      100% 100%
+    );
+}
+
+
+.b2::after {
+  left: 16px;
+
+  clip-path:
+    polygon(
+      0 0,
+      100% 0,
+      0 100%
+    );
+}
+
+
+/* =========================================================
+   NÚMERO
+========================================================= */
 
 .num {
   display: grid;
+
   place-items: center;
+
   width: 26px;
   height: 26px;
+
   font-size: 0.8rem;
+
   font-weight: 800;
+
   border-radius: 50%;
-  background: var(--blue);
+
+  background:
+    var(--blue);
 }
 
-.b1 { top: 2%; left: 0; }
-.b2 { top: 36%; right: 0; }
-.b3 { bottom: 4%; left: 0; }
 
-/* ========== DESKTOP: balões em grid, sem sobreposição ========== */
-@media (min-width: 1100px) {
-  .section {
-    --plate-w: clamp(340px, 30vw, 480px);
-    --balloon-gap: clamp(20px, 2.5vw, 40px);
-  }
+/* =========================================================
+   POSIÇÃO MOBILE
+========================================================= */
 
-  /* palco vira grid: [esquerda] [placa] [direita] */
+.b1 {
+  top: 2%;
+  left: 0;
+}
+
+
+.b2 {
+  top: 36%;
+  right: 0;
+}
+
+
+.b3 {
+  bottom: 4%;
+  left: 0;
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 767px) {
+
+  /* -------------------------------------------------------
+     STAGE
+  ------------------------------------------------------- */
+
   .stage {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) var(--plate-w) minmax(0, 1fr);
-    grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
-    column-gap: var(--balloon-gap);
+    margin-top: 18px;
   }
 
-  /* linha central em degradê: nasce do nada e "encosta" na placa */
-  .stage::before { background: linear-gradient(180deg, rgba(0, 92, 230, 0), rgba(0, 92, 230, 0.6)); }
-  .stage::after  { background: linear-gradient(0deg,   rgba(0, 92, 230, 0), rgba(0, 92, 230, 0.6)); }
 
-  /* ----- balões ----- */
-  .balloon {
-    position: relative; /* sai do absolute; a .anchor continua absolute */
-    top: auto;
-    right: auto;
-    bottom: auto;
-    left: auto;
-    width: clamp(260px, 23vw, 350px);
-    max-width: 100%;
-    padding: 24px 26px 28px;
-    border-radius: 20px;
-    /* brilho azul no canto superior esquerdo sobre o navy sólido */
+  /* -------------------------------------------------------
+     LINHA CENTRAL
+  ------------------------------------------------------- */
+
+  .stage::before,
+  .stage::after {
+    width: 1px;
+
     background:
-      radial-gradient(120% 90% at 0% 0%, rgba(0, 92, 230, 0.3), transparent 60%),
-      var(--navy);
-    box-shadow:
-      inset 0 0 0 1px rgba(255, 255, 255, 0.07),
-      0 28px 50px -18px rgba(13, 28, 50, 0.45);
+      rgba(
+        13,
+        28,
+        50,
+        0.35
+      );
   }
 
-  /* número grande de marca d'água */
-  .balloon::before {
-    content: attr(data-n);
-    position: absolute;
-    right: 22px;
-    bottom: 2px;
-    z-index: 0;
-    font-size: clamp(5rem, 6vw, 6.5rem);
-    font-weight: 800;
-    line-height: 1;
-    letter-spacing: -0.06em;
-    color: rgba(255, 255, 255, 0.05);
-    pointer-events: none;
+
+  /* -------------------------------------------------------
+     DECOR
+  ------------------------------------------------------- */
+
+  .decor {
+    --pw: var(--plate-w, 220px);
+
+    /*
+     * Menor área de pintura.
+     */
+    inset:
+      -30vh
+      calc(var(--space-page, 18px) * -1);
+
+    contain: paint;
   }
-  .balloon > * { position: relative; z-index: 1; }
+
+
+  /* -------------------------------------------------------
+     DOTS
+  ------------------------------------------------------- */
+
+  .dots {
+    inset: -44px;
+
+    background-image:
+      radial-gradient(
+        rgba(0, 92, 230, 0.30)
+          1px,
+        transparent
+          1.5px
+      );
+
+    background-size: 28px 28px;
+
+    /*
+     * No mobile eles ficam estáticos.
+     * O GSAP apenas controla opacity.
+     */
+    transform: none;
+
+    will-change: opacity;
+  }
+
+
+  /* -------------------------------------------------------
+     DOTS GRANDES
+  ------------------------------------------------------- */
+
+  .dotsBig {
+    display: none;
+  }
+
+
+  /* -------------------------------------------------------
+     GLOW
+  ------------------------------------------------------- */
+
+  .glow {
+    --d: calc(var(--pw) * 1.8);
+
+    background:
+      radial-gradient(
+        circle closest-side,
+
+        rgba(0, 92, 230, 0)
+          0%,
+
+        rgba(0, 92, 230, 0)
+          45%,
+
+        rgba(0, 92, 230, 0.07)
+          58%,
+
+        rgba(0, 92, 230, 0.11)
+          70%,
+
+        rgba(0, 92, 230, 0)
+          100%
+      );
+  }
+
+
+  /* -------------------------------------------------------
+     PULSES
+  ------------------------------------------------------- */
+
+  .pulse {
+    display: none;
+  }
+
+
+  /* -------------------------------------------------------
+     RINGS
+  ------------------------------------------------------- */
+
+  /*
+   * Mobile usa somente um ring.
+   */
+  .ringB,
+  .ringC,
+  .ringD {
+    display: none;
+  }
+
+
+  .ringA {
+    --d: calc(var(--pw) * 1.45);
+
+    /*
+     * Ring estático.
+     *
+     * Isso elimina uma animação infinita importante
+     * no celular.
+     */
+    animation: none;
+
+    border:
+      1px solid
+      rgba(0, 92, 230, 0.25);
+  }
+
+
+  .ringA::before,
+  .ringA::after {
+    width: 6px;
+    height: 6px;
+
+    margin-left: -3px;
+  }
+
+
+  .ringA::before {
+    top: -3px;
+  }
+
+
+  .ringA::after {
+    bottom: -3px;
+  }
+
+
+  /* -------------------------------------------------------
+     ANCHOR
+  ------------------------------------------------------- */
+
+  .anchor {
+    /*
+     * Limita o tamanho da placa no celular.
+     */
+    width:
+      min(
+        var(--plate-w),
+        58vw
+      );
+  }
+
+
+  /* -------------------------------------------------------
+     BALÕES
+  ------------------------------------------------------- */
+
+  .balloon {
+    width:
+      clamp(
+        122px,
+        39vw,
+        165px
+      );
+
+    padding:
+      12px
+      12px
+      14px;
+
+    border-radius: 12px;
+
+    /*
+     * Sombra removida.
+     *
+     * Sombra é mais cara que opacity/transform
+     * quando usada em grandes quantidades.
+     */
+    box-shadow: none;
+  }
+
 
   .balloon h3 {
-    margin-top: 14px;
-    font-size: clamp(1.4rem, 1.7vw, 1.8rem);
+    margin-top: 7px;
+
+    font-size:
+      clamp(
+        0.88rem,
+        3.8vw,
+        1rem
+      );
   }
+
 
   .balloon p {
-    margin-top: 10px;
-    font-size: clamp(0.95rem, 1.05vw, 1.1rem);
-    line-height: 1.5;
+    margin-top: 5px;
+
+    font-size:
+      clamp(
+        0.62rem,
+        2.7vw,
+        0.7rem
+      );
+
+    line-height: 1.3;
   }
+
+
+  /* -------------------------------------------------------
+     NÚMERO
+  ------------------------------------------------------- */
 
   .num {
-    width: 38px;
-    height: 38px;
-    font-size: 1.1rem;
-    background: linear-gradient(135deg, var(--sky-1, #4aa8ff), var(--blue));
-    box-shadow: 0 0 0 5px rgba(0, 92, 230, 0.25);
+    width: 24px;
+    height: 24px;
+
+    font-size: 0.72rem;
   }
 
-  /* ponta maior */
+
+  /* -------------------------------------------------------
+     PONTAS
+  ------------------------------------------------------- */
+
   .balloon::after {
-    width: 30px;
-    height: 20px;
-    bottom: -17px;
-  }
-  .b1::after { right: 26px; }
-  .b2::after { left: 26px; }
+    width: 17px;
+    height: 12px;
 
-  /* 1 e 3 na coluna esquerda (uma em cada linha), 2 na direita */
-  .b1 {
-    grid-column: 1;
-    grid-row: 1;
-    justify-self: end;
-    align-self: start;
-  }
-  .b3 {
-    grid-column: 1;
-    grid-row: 2;
-    justify-self: end;
-    align-self: end;
-    margin-bottom: 6px; /* só folga para a sombra; a ponta agora é em cima */
-  }
-  .b2 {
-    grid-column: 3;
-    grid-row: 1 / span 2;
-    justify-self: start;
-    align-self: center;
+    bottom: -9px;
   }
 
-  /* balão 3: ponta no canto SUPERIOR direito, apontando para cima/direita (rumo à placa) */
+
+  .b1::after,
   .b3::after {
-    bottom: auto;
-    top: -17px;
-    right: 26px;
-    left: auto;
-    clip-path: polygon(0 100%, 100% 100%, 100% 0);
+    right: 13px;
+  }
+
+
+  .b2::after {
+    left: 13px;
   }
 }
 
-/* ========== NOTEBOOKS BAIXOS (altura ≤ 820px): versão compacta ========== */
-@media (min-width: 1100px) and (max-height: 820px) {
+
+/* =========================================================
+   CELULARES MUITO PEQUENOS
+========================================================= */
+
+@media (max-width: 380px) {
+
   .pin {
-    padding-top: calc(env(safe-area-inset-top, 0px) + 72px);
+    padding-top:
+      calc(
+        env(safe-area-inset-top, 0px)
+        + 72px
+      );
   }
+
 
   .stage {
     margin-top: 12px;
   }
 
+
+  .decor {
+    --pw: 190px;
+  }
+
+
+  .anchor {
+    width: 54vw;
+  }
+
+
   .balloon {
-    padding: 16px 20px 20px;
+    width: 136px;
+
+    padding:
+      10px
+      10px
+      12px;
+  }
+
+
+  .balloon h3 {
+    font-size: 0.85rem;
+  }
+
+
+  .balloon p {
+    font-size: 0.60rem;
+  }
+
+
+  .num {
+    width: 22px;
+    height: 22px;
+
+    font-size: 0.68rem;
+  }
+}
+
+
+/* =========================================================
+   MODO LITE EXTREMO
+========================================================= */
+
+.section[data-perf='lite'] {
+
+  /*
+   * Garante que o celular fraco não receba
+   * animações infinitas desnecessárias.
+   */
+  .pulse,
+  .dotsBig,
+  .ringC,
+  .ringD {
+    display: none;
+  }
+
+
+  .ringA,
+  .ringB {
+    animation: none;
+  }
+
+
+  .dots {
+    transform: none;
+  }
+}
+
+
+/* =========================================================
+   DESKTOP
+========================================================= */
+
+@media (min-width: 1100px) {
+
+  .section {
+    --plate-w:
+      clamp(
+        340px,
+        30vw,
+        480px
+      );
+
+    --balloon-gap:
+      clamp(
+        20px,
+        2.5vw,
+        40px
+      );
+  }
+
+
+  /* -------------------------------------------------------
+     STAGE GRID
+  ------------------------------------------------------- */
+
+  .stage {
+    display: grid;
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      var(--plate-w)
+      minmax(0, 1fr);
+
+    grid-template-rows:
+      minmax(0, 1fr)
+      minmax(0, 1fr);
+
+    column-gap:
+      var(--balloon-gap);
+  }
+
+
+  /* -------------------------------------------------------
+     LINHA CENTRAL
+  ------------------------------------------------------- */
+
+  .stage::before {
+    background:
+      linear-gradient(
+        180deg,
+        rgba(0, 92, 230, 0),
+        rgba(0, 92, 230, 0.6)
+      );
+  }
+
+
+  .stage::after {
+    background:
+      linear-gradient(
+        0deg,
+        rgba(0, 92, 230, 0),
+        rgba(0, 92, 230, 0.6)
+      );
+  }
+
+
+  /* -------------------------------------------------------
+     BALÕES DESKTOP
+  ------------------------------------------------------- */
+
+  .balloon {
+    position: relative;
+
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+
+    width:
+      clamp(
+        260px,
+        23vw,
+        350px
+      );
+
+    max-width: 100%;
+
+    padding:
+      24px
+      26px
+      28px;
+
+    border-radius: 20px;
+
+    background:
+      radial-gradient(
+        120% 90% at 0% 0%,
+        rgba(0, 92, 230, 0.3),
+        transparent 60%
+      ),
+      var(--navy);
+
+    /*
+     * Sombra somente no desktop.
+     */
+    box-shadow:
+      inset
+      0 0 0 1px
+      rgba(255, 255, 255, 0.07),
+
+      0 28px 50px -18px
+      rgba(13, 28, 50, 0.45);
+  }
+
+
+  /* -------------------------------------------------------
+     NÚMERO GIGANTE
+  ------------------------------------------------------- */
+
+  .balloon::before {
+    content: attr(data-n);
+
+    position: absolute;
+
+    right: 22px;
+    bottom: 2px;
+
+    z-index: 0;
+
+    font-size:
+      clamp(
+        5rem,
+        6vw,
+        6.5rem
+      );
+
+    font-weight: 800;
+
+    line-height: 1;
+
+    letter-spacing: -0.06em;
+
+    color:
+      rgba(
+        255,
+        255,
+        255,
+        0.05
+      );
+
+    pointer-events: none;
+  }
+
+
+  .balloon > * {
+    position: relative;
+
+    z-index: 1;
+  }
+
+
+  /* -------------------------------------------------------
+     TÍTULO
+  ------------------------------------------------------- */
+
+  .balloon h3 {
+    margin-top: 14px;
+
+    font-size:
+      clamp(
+        1.4rem,
+        1.7vw,
+        1.8rem
+      );
+  }
+
+
+  /* -------------------------------------------------------
+     TEXTO
+  ------------------------------------------------------- */
+
+  .balloon p {
+    margin-top: 10px;
+
+    font-size:
+      clamp(
+        0.95rem,
+        1.05vw,
+        1.1rem
+      );
+
+    line-height: 1.5;
+  }
+
+
+  /* -------------------------------------------------------
+     NÚMERO DESKTOP
+  ------------------------------------------------------- */
+
+  .num {
+    width: 38px;
+    height: 38px;
+
+    font-size: 1.1rem;
+
+    background:
+      linear-gradient(
+        135deg,
+        var(--sky-1, #4aa8ff),
+        var(--blue)
+      );
+
+    box-shadow:
+      0 0 0 5px
+      rgba(0, 92, 230, 0.25);
+  }
+
+
+  /* -------------------------------------------------------
+     PONTA DESKTOP
+  ------------------------------------------------------- */
+
+  .balloon::after {
+    width: 30px;
+    height: 20px;
+
+    bottom: -17px;
+  }
+
+
+  .b1::after {
+    right: 26px;
+  }
+
+
+  .b2::after {
+    left: 26px;
+  }
+
+
+  /* -------------------------------------------------------
+     GRID DOS BALÕES
+  ------------------------------------------------------- */
+
+  .b1 {
+    grid-column: 1;
+    grid-row: 1;
+
+    justify-self: end;
+    align-self: start;
+  }
+
+
+  .b3 {
+    grid-column: 1;
+    grid-row: 2;
+
+    justify-self: end;
+    align-self: end;
+
+    margin-bottom: 6px;
+  }
+
+
+  .b2 {
+    grid-column: 3;
+
+    grid-row:
+      1 / span 2;
+
+    justify-self: start;
+    align-self: center;
+  }
+
+
+  /* -------------------------------------------------------
+     BALÃO 3
+  ------------------------------------------------------- */
+
+  .b3::after {
+    bottom: auto;
+
+    top: -17px;
+
+    right: 26px;
+    left: auto;
+
+    clip-path:
+      polygon(
+        0 100%,
+        100% 100%,
+        100% 0
+      );
+  }
+}
+
+
+/* =========================================================
+   NOTEBOOKS BAIXOS
+========================================================= */
+
+@media (min-width: 1100px)
+  and (max-height: 820px) {
+
+  .pin {
+    padding-top:
+      calc(
+        env(safe-area-inset-top, 0px)
+        + 72px
+      );
+  }
+
+
+  .stage {
+    margin-top: 12px;
+  }
+
+
+  .balloon {
+    padding:
+      16px
+      20px
+      20px;
+
     border-radius: 16px;
   }
 
+
   .balloon::before {
     font-size: 4.2rem;
+
     right: 16px;
   }
 
+
   .balloon h3 {
     margin-top: 8px;
-    font-size: clamp(1.15rem, 1.4vw, 1.4rem);
+
+    font-size:
+      clamp(
+        1.15rem,
+        1.4vw,
+        1.4rem
+      );
   }
+
 
   .balloon p {
     margin-top: 6px;
-    font-size: clamp(0.85rem, 0.95vw, 0.95rem);
+
+    font-size:
+      clamp(
+        0.85rem,
+        0.95vw,
+        0.95rem
+      );
+
     line-height: 1.4;
   }
+
 
   .num {
     width: 30px;
     height: 30px;
+
     font-size: 0.95rem;
-    box-shadow: 0 0 0 4px rgba(0, 92, 230, 0.25);
+
+    box-shadow:
+      0 0 0 4px
+      rgba(0, 92, 230, 0.25);
   }
+
 
   .balloon::after {
     width: 24px;
     height: 16px;
+
     bottom: -13px;
   }
-  .b3 { margin-bottom: 4px; }
-  .b3::after { bottom: auto; top: -13px; }
+
+
+  .b3 {
+    margin-bottom: 4px;
+  }
+
+
+  .b3::after {
+    bottom: auto;
+
+    top: -13px;
+  }
+}
+
+
+/* =========================================================
+   MOBILE — MODO LITE FORÇADO
+========================================================= */
+
+@media (max-width: 767px) {
+
+  .section[data-perf='lite'] {
+
+    .decor {
+      /*
+       * Deixa a decoração ainda mais compacta.
+       */
+      inset:
+        -20vh
+        calc(var(--space-page, 18px) * -1);
+    }
+
+
+    .glow {
+      opacity: 0.75;
+    }
+
+
+    .dots {
+      opacity: 0.55;
+
+      /*
+       * Sem movimento.
+       */
+      transform: none;
+    }
+
+
+    .ringA {
+      opacity: 0.8;
+
+      animation: none;
+    }
+
+
+    .balloon {
+      /*
+       * Sem sombra.
+       */
+      box-shadow: none;
+
+      /*
+       * Evita promover elementos demais.
+       */
+      will-change: transform, opacity;
+    }
+  }
+}
+
+
+/* =========================================================
+   DISPOSITIVOS COM REDUCED MOTION
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .decor *,
+  .balloon {
+    animation: none !important;
+
+    transition: none !important;
+
+    will-change: auto !important;
+  }
+
+
+  .dots {
+    transform: none !important;
+  }
+
+
+  .ring {
+    rotate: 0deg !important;
+  }
 }

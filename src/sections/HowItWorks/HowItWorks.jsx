@@ -13,10 +13,20 @@ import styles from './HowItWorks.module.css';
  */
 function isWeakDevice() {
   if (typeof window === 'undefined') return false;
-  if (new URLSearchParams(window.location.search).has('lite')) return true;
+
+  if (new URLSearchParams(window.location.search).has('lite')) {
+    return true;
+  }
+
   const mem = navigator.deviceMemory;
   const cores = navigator.hardwareConcurrency;
-  return Boolean((mem && mem <= 4) || (cores && cores <= 4));
+  const touch = navigator.maxTouchPoints || 0;
+
+  const lowMemory = mem && mem <= 4;
+  const lowCpu = cores && cores <= 4;
+  const mobile = touch > 0 && window.innerWidth <= 900;
+
+  return Boolean(lowMemory || lowCpu || mobile);
 }
 
 export default function HowItWorks() {
@@ -42,50 +52,219 @@ export default function HowItWorks() {
   }, []);
 
   useGSAP(
-    () => {
-      const balloons = gsap.utils.toArray(`.${styles.balloon}`);
-      const rings = [`.${styles.glow}`, `.${styles.ring}`];
-      const dots = `.${styles.dots}`;
-      const dotsBig = `.${styles.dotsBig}`;
+  () => {
+    const balloons = gsap.utils.toArray(`.${styles.balloon}`);
+    const rings = [`.${styles.glow}`, `.${styles.ring}`];
+    const dots = `.${styles.dots}`;
+    const dotsBig = `.${styles.dotsBig}`;
 
-      if (prefersReducedMotion()) {
-        gsap.set([...balloons, ...rings, dots], { autoAlpha: 1, y: 0, scale: 1 });
-        gsap.set(dotsBig, { autoAlpha: 0.45 });
-        return;
-      }
+    if (prefersReducedMotion()) {
+      gsap.set([...balloons, ...rings, dots], {
+        autoAlpha: 1,
+        y: 0,
+        scale: 1,
+      });
 
-      // A placa (fixa) já está parada na âncora; aqui só o pin + balões em sequência.
+      gsap.set(dotsBig, { autoAlpha: 0 });
+
+      return;
+    }
+
+    const isMobile = window.matchMedia('(max-width: 767px)').matches;
+
+    /*
+     * MOBILE / CELULARES DE ENTRADA
+     *
+     * Evita:
+     * - parallax dos dots
+     * - dotsBig
+     * - múltiplos rings
+     * - pulses
+     *
+     * Mantemos somente entrada dos balões + um pequeno movimento.
+     */
+    if (isMobile || lite) {
+      const mobileRings = [`.${styles.glow}`, `.${styles.ringA}`];
+
+      gsap.set(
+        [
+          `.${styles.ringB}`,
+          `.${styles.ringC}`,
+          `.${styles.ringD}`,
+          `.${styles.pulse}`,
+          dotsBig,
+        ],
+        {
+          autoAlpha: 0,
+        }
+      );
+
       const tl = gsap.timeline({
-        defaults: { ease: 'power3.out', force3D: true },
+        defaults: {
+          ease: 'power2.out',
+        },
+
         scrollTrigger: {
           trigger: pin.current,
           start: 'top top',
-          end: () => `+=${window.innerHeight * 2.4}`,
+          end: () => `+=${window.innerHeight * 1.8}`,
           pin: true,
-          scrub: 0.6,
+          scrub: 0.8,
           anticipatePin: 1,
           invalidateOnRefresh: true,
         },
       });
 
-      // halo + anéis "abrem" a partir da placa (só transform + opacity: roda na GPU)
-      tl.fromTo(rings, { autoAlpha: 0, scale: 0.6 }, { autoAlpha: 1, scale: 1, duration: 1.6, stagger: 0.15 }, 0);
+      // Apenas uma entrada simples do glow + anel
+      tl.fromTo(
+        mobileRings,
+        {
+          autoAlpha: 0,
+          scale: 0.9,
+        },
+        {
+          autoAlpha: 1,
+          scale: 1,
+          duration: 1,
+          stagger: 0.1,
+        },
+        0
+      );
 
-      // pontos aparecem e deslizam com o scroll (parallax).
-      // ANTES: animava backgroundPosition (repinta a camada gigante a cada frame).
-      // AGORA: anima x/y (transform) — o deslocamento é múltiplo do tamanho do "tile",
-      // então o resultado visual é idêntico e a emenda continua invisível.
-      tl.fromTo(dots, { autoAlpha: 0 }, { autoAlpha: 1, duration: 1.2 }, 0);
-      tl.fromTo(dots, { x: 0, y: 0 }, { x: 88, y: 88, duration: 6, ease: 'none' }, 0);
-      tl.fromTo(dotsBig, { x: 0, y: 0 }, { x: 132, y: 132, duration: 6, ease: 'none' }, 0);
+      // Dots aparecem, mas NÃO fazem parallax.
+      tl.fromTo(
+        dots,
+        {
+          autoAlpha: 0,
+        },
+        {
+          autoAlpha: 0.7,
+          duration: 0.8,
+        },
+        0
+      );
 
+      // Balões
       balloons.forEach((b, i) => {
-        tl.fromTo(b, { autoAlpha: 0, y: 44, scale: 0.92 }, { autoAlpha: 1, y: 0, scale: 1, duration: 1 }, 0.4 + i * 1.5);
+        tl.fromTo(
+          b,
+          {
+            autoAlpha: 0,
+            y: 20,
+          },
+          {
+            autoAlpha: 1,
+            y: 0,
+            duration: 0.7,
+          },
+          0.3 + i * 1.1
+        );
       });
-      tl.to({}, { duration: 0.8 }); // respiro final antes de soltar o pin
-    },
-    { scope: root }
-  );
+
+      return;
+    }
+
+    /*
+     * DESKTOP
+     *
+     * Aqui mantemos a experiência completa.
+     */
+    const tl = gsap.timeline({
+      defaults: {
+        ease: 'power3.out',
+        force3D: true,
+      },
+
+      scrollTrigger: {
+        trigger: pin.current,
+        start: 'top top',
+        end: () => `+=${window.innerHeight * 2.4}`,
+        pin: true,
+        scrub: 0.6,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    tl.fromTo(
+      rings,
+      {
+        autoAlpha: 0,
+        scale: 0.6,
+      },
+      {
+        autoAlpha: 1,
+        scale: 1,
+        duration: 1.6,
+        stagger: 0.15,
+      },
+      0
+    );
+
+    tl.fromTo(
+      dots,
+      {
+        autoAlpha: 0,
+      },
+      {
+        autoAlpha: 1,
+        duration: 1.2,
+      },
+      0
+    );
+
+    tl.fromTo(
+      dots,
+      {
+        x: 0,
+        y: 0,
+      },
+      {
+        x: 88,
+        y: 88,
+        duration: 6,
+        ease: 'none',
+      },
+      0
+    );
+
+    tl.fromTo(
+      dotsBig,
+      {
+        x: 0,
+        y: 0,
+      },
+      {
+        x: 132,
+        y: 132,
+        duration: 6,
+        ease: 'none',
+      },
+      0
+    );
+
+    balloons.forEach((b, i) => {
+      tl.fromTo(
+        b,
+        {
+          autoAlpha: 0,
+          y: 44,
+          scale: 0.92,
+        },
+        {
+          autoAlpha: 1,
+          y: 0,
+          scale: 1,
+          duration: 1,
+        },
+        0.4 + i * 1.5
+      );
+    });
+
+    tl.to({}, { duration: 0.8 });
+  },
+  { scope: root }
+);
 
   return (
     <section
