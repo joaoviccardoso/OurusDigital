@@ -8,12 +8,13 @@
 .pin {
   /* altura extra que a barra de URL do navegador ocupa (0 no desktop) */
   --bar: 0px;
+  --pad-bottom: 16px; /* ajuste aqui o espaço inferior da seção */
   position: relative;
   z-index: 30;
   height: 110svh; /* fallback */
   display: flex;
   flex-direction: column;
-  padding: calc(env(safe-area-inset-top, 0px) + 84px) var(--space-page) 16px;
+  padding: calc(env(safe-area-inset-top, 0px) + 84px) var(--space-page) var(--pad-bottom);
   overflow: hidden;
 }
 
@@ -24,7 +25,7 @@
   .pin {
     --bar: calc(100lvh - 100svh);
     height: 100lvh;
-    padding-bottom: calc(16px + var(--bar));
+    padding-bottom: calc(var(--pad-bottom) + var(--bar));
   }
 }
 
@@ -51,18 +52,22 @@
 .stage::before { top: 0; }
 .stage::after { bottom: 0; }
 
-/* ========== CAMADA DECORATIVA: cobre a seção inteira, centrada na placa ========== */
+/* ========== CAMADA DECORATIVA: centrada na placa, cobre a tela do pin ========== */
+/* ANTES: inset -100vh -100vw (300vw × 300vh de camada). AGORA: só o necessário
+   (largura do palco + ~50vh acima e abaixo), o que reduz muito a memória de GPU no celular.
+   `contain: paint` isola a camada: o que acontece aqui dentro não força repintura fora. */
 .decor {
   --pw: var(--plate-w, 260px);
   position: absolute;
-  inset: -100vh -100vw; /* gigante: o .pin (overflow:hidden) recorta e preenche a tela toda */
+  inset: -50vh calc(var(--space-page, 24px) * -1);
   z-index: -1;          /* atrás de header, balões e placa, mas acima do fundo da seção */
   pointer-events: none;
+  contain: paint;
 }
 
-/* grade de pontos: vazia atrás da placa, forte ao redor, esmaece até as bordas */
-.dots,
-.dotsBig {
+/* Máscara única para as duas grades de pontos: vazia atrás da placa, forte ao redor,
+   esmaece até as bordas. A máscara fica PARADA aqui; só as grades de dentro se movem. */
+.dotsMask {
   position: absolute;
   inset: 0;
   -webkit-mask-image: radial-gradient(
@@ -85,21 +90,31 @@
   );
 }
 
-.dots {
-  background-image: radial-gradient(rgba(0, 92, 230, 0.42) 1.3px, transparent 1.7px);
-  background-size: 22px 22px;
-  background-position: 0px 0px;
+/* As grades são maiores que a máscara por 1 deslocamento inteiro (88px / 132px, múltiplos do tile),
+   assim o GSAP desliza via transform sem deixar borda vazia e sem repintar. */
+.dots,
+.dotsBig {
+  position: absolute;
 }
 
-/* camada maior que "pisca" devagar, dá profundidade */
+.dots {
+  inset: -88px;
+  background-image: radial-gradient(rgba(0, 92, 230, 0.42) 1.3px, transparent 1.7px);
+  background-size: 22px 22px;
+}
+
+/* camada maior que "pisca" devagar, dá profundidade (opacity = animação de GPU) */
 .dotsBig {
+  inset: -132px;
   background-image: radial-gradient(rgba(0, 92, 230, 0.9) 2px, transparent 2.6px);
   background-size: 66px 66px;
   background-position: 11px 11px;
   animation: twinkle 4.5s ease-in-out infinite;
 }
 
-/* halo azul suave (centro vazado para não tingir a placa) */
+/* halo azul suave com centro vazado.
+   ANTES: gradiente + filter: blur(28px) + mask. AGORA: um gradiente só, com o mesmo perfil
+   de transparência (sem blur e sem máscara, que são as partes caras). */
 .glow {
   --d: calc(var(--pw) * 2.2);
   position: absolute;
@@ -108,10 +123,16 @@
   left: calc(50% - var(--d) / 2);
   top: calc(50% - var(--d) / 2);
   border-radius: 50%;
-  background: radial-gradient(circle closest-side, rgba(0, 92, 230, 0.34) 45%, rgba(0, 92, 230, 0) 100%);
-  filter: blur(28px);
-  -webkit-mask-image: radial-gradient(circle closest-side, transparent 0, transparent 40%, #000 70%);
-          mask-image: radial-gradient(circle closest-side, transparent 0, transparent 40%, #000 70%);
+  background: radial-gradient(
+    circle closest-side,
+    rgba(0, 92, 230, 0) 0,
+    rgba(0, 92, 230, 0) 40%,
+    rgba(0, 92, 230, 0.1) 50%,
+    rgba(0, 92, 230, 0.16) 58%,
+    rgba(0, 92, 230, 0.185) 68%,
+    rgba(0, 92, 230, 0.1) 85%,
+    rgba(0, 92, 230, 0) 100%
+  );
 }
 
 /* ondas de radar saindo da placa */
@@ -127,6 +148,7 @@
   opacity: 0;
   animation: ripple 5s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
 }
+.pulse1 { animation-delay: 0s; }
 .pulse2 { animation-delay: 2.5s; }
 
 /* anéis concêntricos com bolinhas orbitando */
@@ -166,8 +188,26 @@
   100% { transform: scale(3.4); opacity: 0; }
 }
 
+/* Fora da tela, as animações infinitas ficam pausadas (o JS marca data-active) */
+.section:not([data-active='true']) .decor * {
+  animation-play-state: paused;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ring, .dotsBig, .pulse { animation: none; }
+}
+
+/* ========== MODO LITE: só celulares fracos (o JS marca data-perf="lite") ========== */
+@media (max-width: 1099px) {
+  .section[data-perf='lite'] .ringD,
+  .section[data-perf='lite'] .pulse2 { display: none; }
+
+  .section[data-perf='lite'] .ringC { animation: none; }
+
+  .section[data-perf='lite'] .dotsBig {
+    animation: none;
+    opacity: 0.45;
+  }
 }
 
 /* mesma largura/proporção da placa */
@@ -225,16 +265,6 @@
 .b1 { top: 2%; left: 0; }
 .b2 { top: 36%; right: 0; }
 .b3 { bottom: 4%; left: 0; }
-
-
-@media (max-width: 1099px) {
-  .decor { inset: -50vh -50vw; }   /* área bem menor */
-  .glow  { filter: none; }         /* blur é caro */
-  .dotsBig,
-  .pulse,
-  .ringC,
-  .ringD { display: none; }        /* menos camadas animadas */
-}
 
 /* ========== DESKTOP: balões em grid, sem sobreposição ========== */
 @media (min-width: 1100px) {
