@@ -30,9 +30,9 @@
   height: 340px;
   border-radius: 50%;
   background: radial-gradient(closest-side, rgba(0, 92, 230, 0.7), rgba(0, 92, 230, 0.22) 55%, transparent 75%);
-  filter: blur(18px);
   pointer-events: none;
   animation: breathe 5s ease-in-out infinite;
+  will-change: transform;
 }
 .lightA { top: 12%; left: -170px; }
 .lightB { bottom: 12%; right: -170px; animation-delay: -2.5s; }

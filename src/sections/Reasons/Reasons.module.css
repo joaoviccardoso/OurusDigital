@@ -158,7 +158,6 @@
     rgba(0, 92, 230, 0.25) 55%,
     transparent 75%
   );
-  filter: blur(14px);
   pointer-events: none;
 }
 .reverse .light {
@@ -190,7 +189,6 @@
   height: 240px;
   border-radius: 50%;
   background: radial-gradient(closest-side, rgba(0, 92, 230, 0.7), rgba(0, 92, 230, 0.2) 55%, transparent 75%);
-  filter: blur(16px);
   pointer-events: none;
 }
 .showcase::before { left: -130px; }

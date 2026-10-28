@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useGSAP, gsap, prefersReducedMotion } from '../../lib/gsap';
 import { WHATSAPP_URL } from '../../config/site';
 import { WhatsAppIcon } from '../../components/WhatsAppFloat/WhatsAppFloat';
@@ -14,6 +14,10 @@ function BoltIcon() {
 
 export default function Hero({ ready }) {
   const root = useRef(null);
+  // a camada decorativa só existe no desktop: no mobile nem baixa a imagem
+  const [desktop] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 1100px)').matches
+  );
 
   // Estado inicial do título: definido pelo GSAP (e não pelo CSS), porque o GSAP
   // converte translateY(110%) do CSS para pixels e a animação em yPercent não "desfaz" isso.
@@ -46,15 +50,19 @@ export default function Hero({ ready }) {
     <section id="inicio" className={styles.hero} data-section="hero" ref={root}>
       {/* Camadas decorativas do fundo (visíveis apenas no desktop) */}
       <div className={styles.bgLayer} aria-hidden="true">
+        {desktop && (
         <img
           className={styles.bgWaves}
           src="/images/heroOverlay.png"
           alt=""
+          decoding="async"
+          loading="lazy"
           onError={(e) => {
             // se a imagem ainda não existir, esconde sem quebrar o layout
             e.currentTarget.style.display = 'none';
           }}
         />
+        )}
         <span className={styles.bgGlow} />
         <span className={styles.bgGrid} />
       </div>

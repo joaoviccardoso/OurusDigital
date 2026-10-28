@@ -6,15 +6,20 @@ import styles from './Preloader.module.css';
 
 const STARS = [0, 1, 2, 3, 4];
 
-const whenLoaded = () =>
-  new Promise((res) => {
-    if (document.readyState === 'complete') res();
-    else window.addEventListener('load', res, { once: true });
-  });
+/**
+ * PERFORMANCE: antes o preloader esperava `window.load` (que inclui TODAS as imagens e o .glb 3D),
+ * o que atrasava LCP e TTI. Agora espera só as fontes, com um teto de 1,5s caso alguma trave.
+ * O modelo 3D e as imagens carregam por trás da cortina / depois dela.
+ */
+const fontsReady = () =>
+  Promise.race([
+    document.fonts?.ready ?? Promise.resolve(),
+    new Promise((res) => setTimeout(res, 1500)),
+  ]);
 
 /**
- * Progresso: sobe até 90% de forma suave e só chega a 100% quando
- * fontes + window.load terminarem. Depois abre a cortina.
+ * Progresso: sobe até 90% de forma suave e chega a 100% quando as fontes terminarem.
+ * Depois abre a cortina.
  * onReveal: dispara no meio da saída (a Hero começa a animar por trás da cortina).
  * onDone  : cortina removida.
  */
@@ -37,22 +42,23 @@ export default function Preloader({ onReveal, onDone }) {
         stars.forEach((s, i) => s.classList.toggle(styles.starOn, n >= i * 20 + 10));
       };
 
-      gsap.from(`.${styles.light}`, { autoAlpha: 0, duration: 1.2, ease: 'power2.out' });
+      gsap.from(`.${styles.light}`, { autoAlpha: 0, duration: 0.8, ease: 'power2.out' });
       gsap.from(`.${styles.badge}, .${styles.card}`, {
-        autoAlpha: 0, y: 18, duration: 0.7, stagger: 0.12, ease: 'power3.out',
+        autoAlpha: 0, y: 18, duration: 0.5, stagger: 0.08, ease: 'power3.out',
       });
 
+      // subida mínima reduzida (1,6s → 0,8s)
       const climb = gsap.to(progress, {
-        v: 90, duration: reduced ? 0.2 : 1.6, ease: 'power2.out', onUpdate: paint,
+        v: 90, duration: reduced ? 0.2 : 0.8, ease: 'power2.out', onUpdate: paint,
       });
 
-      Promise.all([document.fonts.ready, whenLoaded(), climb.then()]).then(() => {
+      Promise.all([fontsReady(), climb.then()]).then(() => {
         const out = gsap.timeline({ onComplete: onDone });
         out
-          .to(progress, { v: 100, duration: 0.45, ease: 'power1.inOut', onUpdate: paint })
-          .to(`.${styles.content}`, { autoAlpha: 0, y: -20, duration: 0.45, ease: 'power2.in' }, '+=0.15')
+          .to(progress, { v: 100, duration: 0.3, ease: 'power1.inOut', onUpdate: paint })
+          .to(`.${styles.content}`, { autoAlpha: 0, y: -20, duration: 0.35, ease: 'power2.in' }, '+=0.1')
           .call(onReveal, null, '>-0.1')
-          .to(root.current, { yPercent: -100, duration: reduced ? 0.01 : 1, ease: 'expo.inOut' }, '<');
+          .to(root.current, { yPercent: -100, duration: reduced ? 0.01 : 0.8, ease: 'expo.inOut' }, '<');
       });
     },
     { scope: root }
