@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
-import '@google/model-viewer';
+//import '@google/model-viewer';
 import { PLATE_MODELS, PLATE_RATIO, PLATE_VARIANT_NAMES, PLATE_YAW_OFFSET } from '../../config/models';
 import styles from './PlateCard.module.css';
 
@@ -57,6 +57,13 @@ export default function PlateCard({ variant = 'blue', cardRef, className = '', i
 
   const handle = useMemo(() => makeHandle(() => viewer.current), []);
 
+  // remova: import '@google/model-viewer';
+
+  useEffect(() => {
+    const load = () => import('@google/model-viewer');
+    if ('requestIdleCallback' in window) requestIdleCallback(load, { timeout: 1500 });
+    else setTimeout(load, 300);
+  }, []);
   // layout effect: o handle existe antes dos useGSAP dos componentes pais
   useLayoutEffect(() => {
     assign(refHolder.current, handle);

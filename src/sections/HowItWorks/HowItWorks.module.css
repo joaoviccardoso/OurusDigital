@@ -226,6 +226,16 @@
 .b2 { top: 36%; right: 0; }
 .b3 { bottom: 4%; left: 0; }
 
+
+@media (max-width: 1099px) {
+  .decor { inset: -50vh -50vw; }   /* área bem menor */
+  .glow  { filter: none; }         /* blur é caro */
+  .dotsBig,
+  .pulse,
+  .ringC,
+  .ringD { display: none; }        /* menos camadas animadas */
+}
+
 /* ========== DESKTOP: balões em grid, sem sobreposição ========== */
 @media (min-width: 1100px) {
   .section {
