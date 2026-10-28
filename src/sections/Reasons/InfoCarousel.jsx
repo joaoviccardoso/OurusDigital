@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { prefersReducedMotion } from '../../lib/gsap';
 import styles from './Reasons.module.css';
 
@@ -14,28 +14,37 @@ export default function InfoCarousel({ cards }) {
   const track = useRef(null);
   const [active, setActive] = useState(0);
 
+  // vai para o card i sem ler layout (o navegador calcula o scroll)
   const go = (i) => {
     const el = track.current;
     const slide = el?.children[Math.max(0, Math.min(i, cards.length - 1))];
     if (!slide) return;
-    el.scrollTo({
-      left: slide.offsetLeft - (el.clientWidth - slide.clientWidth) / 2,
+    slide.scrollIntoView({
       behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+      inline: 'center',
+      block: 'nearest',
     });
   };
 
-  // descobre qual card está mais perto do centro
-  const onScroll = () => {
+  // descobre qual card está visível sem ler offsetLeft/offsetWidth
+  useEffect(() => {
     const el = track.current;
-    const center = el.scrollLeft + el.clientWidth / 2;
-    let best = 0;
-    let dist = Infinity;
-    [...el.children].forEach((c, i) => {
-      const d = Math.abs(c.offsetLeft + c.offsetWidth / 2 - center);
-      if (d < dist) { dist = d; best = i; }
-    });
-    setActive(best);
-  };
+    if (!el) return;
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActive([...el.children].indexOf(entry.target));
+          }
+        });
+      },
+      { root: el, threshold: 0.6 }
+    );
+
+    [...el.children].forEach((child) => io.observe(child));
+    return () => io.disconnect();
+  }, [cards]);
 
   const onKeyDown = (e) => {
     if (e.key === 'ArrowRight') { e.preventDefault(); go(active + 1); }
@@ -50,7 +59,7 @@ export default function InfoCarousel({ cards }) {
           <Chevron dir="left" />
         </button>
 
-        <div className={styles.track} ref={track} onScroll={onScroll} onKeyDown={onKeyDown} tabIndex={0}>
+        <div className={styles.track} ref={track} onKeyDown={onKeyDown} tabIndex={0}>
           {cards.map((c) => (
             <div key={c.title} className={styles.slide}>
               <article className={styles.infoCard}>
