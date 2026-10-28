@@ -10,7 +10,7 @@
   --bar: 0px;
   position: relative;
   z-index: 30;
-  height: 100svh; /* fallback */
+  height: 110svh; /* fallback */
   display: flex;
   flex-direction: column;
   padding: calc(env(safe-area-inset-top, 0px) + 84px) var(--space-page) 16px;

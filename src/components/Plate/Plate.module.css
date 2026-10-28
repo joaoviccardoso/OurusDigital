@@ -17,3 +17,9 @@
 
 .layer { transform-style: preserve-3d; }
 .scaler { opacity: 0; visibility: hidden; }
+
+@media (min-width: 1100px) {
+  .mover {
+    width: clamp(340px, 30vw, 480px); /* era clamp(340px, 30vw, 480px) */
+  }
+}

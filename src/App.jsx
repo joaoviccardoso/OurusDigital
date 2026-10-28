@@ -27,9 +27,18 @@ function Site() {
   // libera o scroll só depois do preloader
   useEffect(() => {
     if (!lenis || !loaded) return;
+    lenis.scrollTo(0, { immediate: true, force: true });
     lenis.start();
     ScrollTrigger.refresh();
   }, [lenis, loaded]);
+
+  // sempre começa no topo (Hero) ao recarregar
+  useEffect(() => {
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <>
