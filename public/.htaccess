@@ -1,0 +1,20 @@
+<IfModule mod_expires.c>
+  ExpiresActive On
+</IfModule>
+
+<IfModule mod_headers.c>
+  # Arquivos do Vite (/assets) têm hash no nome: cache de 1 ano
+  <FilesMatch "\.(js|css|woff2)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+
+  # Imagens e modelo 3D (nome fixo, sem hash): cache de 30 dias
+  <FilesMatch "\.(glb|png|webp|jpg|jpeg|svg)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+
+  # HTML nunca fica em cache longo
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>
