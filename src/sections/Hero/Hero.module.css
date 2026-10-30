@@ -100,7 +100,7 @@
     text-align: left;
     padding:
       calc(env(safe-area-inset-top, 0px) + 110px)
-      max(var(--space-page), calc((100% - 1300px) / 2))
+      max(var(--space-page), calc((100% - 1450px) / 2))
       64px;
     background-position: center;
     /* degradê mais leve: o preto fica só nas bordas, sem apagar as camadas novas */
@@ -182,7 +182,7 @@
   .badge {
     position: absolute;
     top: calc(env(safe-area-inset-top, 0px) + 110px);
-    left: max(var(--space-page), calc((100% - 1300px) / 2));
+    left: max(var(--space-page), calc((100% - 1450px) / 2));
     z-index: 2;
     margin: 0;
     font-size: 0.72rem;
